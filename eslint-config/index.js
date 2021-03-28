@@ -12,7 +12,13 @@ module.exports = {
     '.vscode/',
   ],
   parser: '@typescript-eslint/parser',
-  plugins: ['eslint-plugin-import'],
+  plugins: [
+    'eslint-plugin-import',
+    'eslint-plugin-jest',
+    'eslint-plugin-jsx-a11y',
+    'eslint-plugin-react',
+    'eslint-plugin-react-hooks',
+  ],
   settings: {
     'import/resolver': {
       node: {
