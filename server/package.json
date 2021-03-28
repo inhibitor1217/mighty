@@ -1,0 +1,9 @@
+{
+  "name": "@mighty/server",
+  "version": "0.0.1",
+  "description": "A server module for mighty",
+  "main": "src/index.ts",
+  "repository": "https://github.com/inhibitor1217/mighty",
+  "author": "inhibitor <inhibitor@kaist.ac.kr>",
+  "license": "MIT"
+}
