@@ -22,7 +22,7 @@ export class HttpEnvironment implements BaseEnvironment {
     const stringOptions = { useColor: options.useColor };
 
     return [
-      this.environmentString.field('port', this.port.toString(), stringOptions),
+      this.environmentString.field('port', this.port, stringOptions),
     ].join('\n');
   }
 }

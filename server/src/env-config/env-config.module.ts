@@ -12,6 +12,14 @@ import { InvalidConfigException } from './exception/invalid-config.exception';
 import { EnvConfigService } from './env-config.service';
 
 const joiRequiredNonEmptyString = Joi.string().min(1).required();
+const joiDatabaseSchema = Joi.object({
+  host: joiRequiredNonEmptyString,
+  port: Joi.number().integer().min(1024).max(65535).required(),
+  username: joiRequiredNonEmptyString,
+  password: joiRequiredNonEmptyString,
+  database: joiRequiredNonEmptyString,
+  synchronize: Joi.boolean().default(false),
+}).required();
 
 @Module({
   imports: [
@@ -91,13 +99,16 @@ export class EnvConfigModule {
         .allow(...AppStage.values)
         .default(AppStage.Development),
     }).required(),
-    http: Joi.object({
-      port: Joi.number().integer().min(1024).max(65535).required(),
+    database: Joi.object({
+      postgres: joiDatabaseSchema,
     }).required(),
     googleOauth: Joi.object({
       clientId: joiRequiredNonEmptyString,
       clientSecret: joiRequiredNonEmptyString,
       redirectUri: joiRequiredNonEmptyString,
+    }).required(),
+    http: Joi.object({
+      port: Joi.number().integer().min(1024).max(65535).required(),
     }).required(),
   });
 

@@ -5,6 +5,8 @@ export class EnvironmentString {
 
   private static readonly fieldNameColor = ConsoleColor.Magenta;
   private static readonly fieldValueColor = ConsoleColor.White;
+  private static readonly numberFieldValueColor = ConsoleColor.Green;
+  private static readonly booleanFieldValueColor = ConsoleColor.Blue;
 
   constructor(domain: string) {
     this.domain = domain;
@@ -12,7 +14,7 @@ export class EnvironmentString {
 
   field(
     name: string,
-    value: string,
+    value: string | number | boolean,
     options?: { useColor?: boolean; obfuscate?: boolean }
   ): string {
     const { useColor = false, obfuscate = false } = options ?? {};
@@ -25,14 +27,27 @@ export class EnvironmentString {
         )
       : baseFieldNameString;
 
-    const baseFieldValueString = obfuscate ? value.replace(/./g, '*') : value;
+    const baseFieldValueString = obfuscate
+      ? value.toString().replace(/./g, '*')
+      : value.toString();
     const fieldValueString = useColor
       ? ConsoleColor.apply(
           baseFieldValueString,
-          EnvironmentString.fieldValueColor
+          EnvironmentString.getValueColor(value)
         )
       : value;
 
     return `${fieldNameString} = ${fieldValueString}`;
+  }
+
+  private static getValueColor(value: string | number | boolean): ConsoleColor {
+    switch (typeof value) {
+      case 'boolean':
+        return this.booleanFieldValueColor;
+      case 'number':
+        return this.numberFieldValueColor;
+      default:
+        return this.fieldValueColor;
+    }
   }
 }
