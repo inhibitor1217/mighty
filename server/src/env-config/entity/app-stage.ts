@@ -1,7 +1,7 @@
 /* eslint-disable import/export */
 /* eslint-disable @typescript-eslint/no-redeclare */
 
-import { unreachable } from '../../utils';
+import { unreachable } from '../../utils/unreachable';
 
 export enum AppStage {
   Development = 'development',
