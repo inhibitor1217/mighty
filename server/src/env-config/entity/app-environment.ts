@@ -41,16 +41,12 @@ export class AppEnvironment implements BaseEnvironment {
   }
 
   toString(options: { useColor: boolean }): string {
-    const stringOptions = { useColor: options.useColor };
+    this.environmentString.defaultOptions = { useColor: options.useColor };
 
     return [
-      this.environmentString.field('name', this.name, stringOptions),
-      this.environmentString.field('version', this.version, stringOptions),
-      this.environmentString.field(
-        'stage',
-        AppStage.toString(this.stage),
-        stringOptions
-      ),
+      this.environmentString.field('name', this.name),
+      this.environmentString.field('version', this.version),
+      this.environmentString.field('stage', AppStage.toString(this.stage)),
     ].join('\n');
   }
 

@@ -32,22 +32,17 @@ export class SingleDatabaseEnvironment implements BaseEnvironment {
   }
 
   toString(options: { useColor: boolean }): string {
-    const stringOptions = { useColor: options.useColor };
+    this.environmentString.defaultOptions = { useColor: options.useColor };
 
     return [
-      this.environmentString.field('host', this.host, stringOptions),
-      this.environmentString.field('port', this.port, stringOptions),
-      this.environmentString.field('username', this.username, stringOptions),
+      this.environmentString.field('host', this.host),
+      this.environmentString.field('port', this.port),
+      this.environmentString.field('username', this.username),
       this.environmentString.field('password', this.password, {
-        ...stringOptions,
         obfuscate: true,
       }),
-      this.environmentString.field('database', this.database, stringOptions),
-      this.environmentString.field(
-        'synchronize',
-        this.synchronize,
-        stringOptions
-      ),
+      this.environmentString.field('database', this.database),
+      this.environmentString.field('synchronize', this.synchronize),
     ].join('\n');
   }
 }

@@ -19,10 +19,8 @@ export class HttpEnvironment implements BaseEnvironment {
   }
 
   toString(options: { useColor: boolean }): string {
-    const stringOptions = { useColor: options.useColor };
+    this.environmentString.defaultOptions = { useColor: options.useColor };
 
-    return [
-      this.environmentString.field('port', this.port, stringOptions),
-    ].join('\n');
+    return [this.environmentString.field('port', this.port)].join('\n');
   }
 }

@@ -27,19 +27,14 @@ export class GoogleOauthEnvironment implements BaseEnvironment {
   }
 
   toString(options: { useColor: boolean }): string {
-    const stringOptions = { useColor: options.useColor };
+    this.environmentString.defaultOptions = { useColor: options.useColor };
 
     return [
-      this.environmentString.field('clientId', this.clientId, stringOptions),
+      this.environmentString.field('clientId', this.clientId),
       this.environmentString.field('clientString', this.clientSecret, {
-        ...stringOptions,
         obfuscate: true,
       }),
-      this.environmentString.field(
-        'redirectUri',
-        this.redirectUri,
-        stringOptions
-      ),
+      this.environmentString.field('redirectUri', this.redirectUri),
     ].join('\n');
   }
 }
