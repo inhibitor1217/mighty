@@ -11,6 +11,8 @@ import { ConfigNotFoundException } from './exception/config-not-found.exception'
 import { InvalidConfigException } from './exception/invalid-config.exception';
 import { EnvConfigService } from './env-config.service';
 
+const joiRequiredNonEmptyString = Joi.string().min(1).required();
+
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -83,14 +85,19 @@ export class EnvConfigModule {
 
   private static readonly schema = Joi.object({
     app: Joi.object({
-      name: Joi.string().min(1).required(),
-      version: Joi.string().min(1).required(),
+      name: joiRequiredNonEmptyString,
+      version: joiRequiredNonEmptyString,
       stage: Joi.string()
         .allow(...AppStage.values)
         .default(AppStage.Development),
     }).required(),
     http: Joi.object({
       port: Joi.number().integer().min(1024).max(65535).required(),
+    }).required(),
+    googleOauth: Joi.object({
+      clientId: joiRequiredNonEmptyString,
+      clientSecret: joiRequiredNonEmptyString,
+      redirectUri: joiRequiredNonEmptyString,
     }).required(),
   });
 

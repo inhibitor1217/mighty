@@ -10,17 +10,27 @@ export class EnvironmentString {
     this.domain = domain;
   }
 
-  field(name: string, value: string, options: { useColor: boolean }): string {
+  field(
+    name: string,
+    value: string,
+    options?: { useColor?: boolean; obfuscate?: boolean }
+  ): string {
+    const { useColor = false, obfuscate = false } = options ?? {};
+
     const baseFieldNameString = `${this.domain}.${name}`;
-    const fieldNameString = options.useColor
+    const fieldNameString = useColor
       ? ConsoleColor.apply(
           baseFieldNameString,
           EnvironmentString.fieldNameColor
         )
       : baseFieldNameString;
 
-    const fieldValueString = options.useColor
-      ? ConsoleColor.apply(value, EnvironmentString.fieldValueColor)
+    const baseFieldValueString = obfuscate ? value.replace(/./g, '*') : value;
+    const fieldValueString = useColor
+      ? ConsoleColor.apply(
+          baseFieldValueString,
+          EnvironmentString.fieldValueColor
+        )
       : value;
 
     return `${fieldNameString} = ${fieldValueString}`;
