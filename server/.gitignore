@@ -10,5 +10,8 @@ lerna-debug.log*
 
 .DS_Store
 
+env.yml
+env.*.yml
+
 /coverage
 /.nyc_output
