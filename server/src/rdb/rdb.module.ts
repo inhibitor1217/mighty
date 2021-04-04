@@ -6,6 +6,7 @@ import { SingleDatabaseEnvironment } from '../env-config/entity/single-database-
 import { EnvConfigModule } from '../env-config/env-config.module';
 import { EnvConfigService } from '../env-config/env-config.service';
 import { unreachable } from '../utils/unreachable';
+import { RDB_ENTITIES } from './rdb-entities';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ export class RdbModule {
   ): TypeOrmModuleOptions {
     return {
       type: 'postgres',
+      entities: RDB_ENTITIES,
       ...configuration,
     };
   }
