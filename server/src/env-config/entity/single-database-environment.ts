@@ -1,3 +1,8 @@
+import _ from 'lodash';
+import {
+  RdbAllLoggingOption,
+  RdbLoggingOption,
+} from '../../rdb/entity/rdb-logging-option';
 import { EnvironmentString } from '../util/environment-string';
 import { BaseEnvironment } from './base-environment';
 
@@ -8,6 +13,7 @@ export type SingleDatabaseEnvironmentObject = {
   password: string;
   database: string;
   synchronize: boolean;
+  logging: boolean | typeof RdbAllLoggingOption | RdbLoggingOption[];
 };
 
 export class SingleDatabaseEnvironment implements BaseEnvironment {
@@ -17,6 +23,7 @@ export class SingleDatabaseEnvironment implements BaseEnvironment {
   password: string;
   database: string;
   synchronize: boolean;
+  logging: boolean | typeof RdbAllLoggingOption | RdbLoggingOption[];
 
   private environmentString: EnvironmentString;
 
@@ -27,6 +34,7 @@ export class SingleDatabaseEnvironment implements BaseEnvironment {
     this.password = object.password;
     this.database = object.database;
     this.synchronize = object.synchronize;
+    this.logging = object.logging;
 
     this.environmentString = new EnvironmentString(domain);
   }
@@ -43,6 +51,10 @@ export class SingleDatabaseEnvironment implements BaseEnvironment {
       }),
       this.environmentString.field('database', this.database),
       this.environmentString.field('synchronize', this.synchronize),
+      this.environmentString.field(
+        'logging',
+        _.isArray(this.logging) ? this.logging.join(', ') : this.logging
+      ),
     ].join('\n');
   }
 }

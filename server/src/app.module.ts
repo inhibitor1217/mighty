@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
-import { EnvConfigModule } from './env-config/env-config.module';
+import { RdbModule } from './rdb/rdb.module';
 
 @Module({
-  imports: [AuthModule, EnvConfigModule],
+  imports: [AuthModule, RdbModule],
   controllers: [],
   providers: [],
 })

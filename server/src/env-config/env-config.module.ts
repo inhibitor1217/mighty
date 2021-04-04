@@ -5,6 +5,10 @@ import _ from 'lodash';
 import { Logger, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
+import {
+  RdbAllLoggingOption,
+  RdbLoggingOption,
+} from '../rdb/entity/rdb-logging-option';
 import { AppStage } from './entity/app-stage';
 import { Environment } from './entity/environment';
 import { ConfigNotFoundException } from './exception/config-not-found.exception';
@@ -19,6 +23,11 @@ const joiDatabaseSchema = Joi.object({
   password: joiRequiredNonEmptyString,
   database: joiRequiredNonEmptyString,
   synchronize: Joi.boolean().default(false),
+  logging: Joi.alternatives(
+    Joi.boolean(),
+    Joi.allow(RdbAllLoggingOption),
+    Joi.array().items(Joi.allow(...RdbLoggingOption.values))
+  ).default([RdbLoggingOption.Error]),
 }).required();
 
 @Module({
