@@ -1,4 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { rdbQueryRunnerProviderMock } from '../rdb/query-runner/rdb-query-runner.provider.mock';
+import { createRepositoryMock } from '../rdb/rdb-repository.mock';
+import { User } from './model/user.model';
 import { UserService } from './user.service';
 
 describe('UserService', () => {
@@ -6,7 +9,11 @@ describe('UserService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UserService],
+      providers: [
+        createRepositoryMock(User),
+        rdbQueryRunnerProviderMock,
+        UserService,
+      ],
     }).compile();
 
     service = module.get<UserService>(UserService);

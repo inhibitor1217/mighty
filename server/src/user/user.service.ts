@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
-import { Connection, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AuthProvider } from '../auth/entity/auth-provider';
+import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
+import { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
 import { UserState } from './entity/user-state';
 import { DuplicateUserProviderIdException } from './exception/duplicate-user-provider-id.exception';
 import { UserProfile } from './model/user-profile.model';
@@ -22,7 +24,8 @@ type CreateUserPayload = {
 @Injectable()
 export class UserService {
   constructor(
-    private connection: Connection,
+    @Inject(RDB_QUERY_RUNNER_PROVIDER)
+    private rdbQueryRunner: RdbQueryRunnerFactory,
     @InjectRepository(User) private userRepository: Repository<User>
   ) {}
 
@@ -39,7 +42,7 @@ export class UserService {
   async createOne(payload: CreateUserPayload): Promise<User> {
     const { profile: userProfilePayload, ...userPayload } = payload;
 
-    const queryRunner = this.connection.createQueryRunner();
+    const queryRunner = this.rdbQueryRunner.create();
     const userRepository = queryRunner.manager.getRepository(User);
     const userProfileRepository = queryRunner.manager.getRepository(
       UserProfile
@@ -59,6 +62,8 @@ export class UserService {
           state: UserState.WaitingForActivation,
           userProfileId: userProfile.id,
         });
+
+        await queryRunner.commitTransaction();
 
         return user;
       } catch (e) {
