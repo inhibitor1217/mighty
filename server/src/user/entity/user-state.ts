@@ -8,6 +8,8 @@ export enum UserState {
   Banned = 'banned',
   Deleted = 'deleted',
   WaitingForActivation = 'waiting-for-activation',
+
+  Mock = 'mock',
 }
 
 export namespace UserState {
@@ -43,6 +45,8 @@ export namespace UserState {
         return 'deleted';
       case UserState.WaitingForActivation:
         return 'waiting-for-activation';
+      case UserState.Mock:
+        return 'mock';
       default:
         return unreachable();
     }

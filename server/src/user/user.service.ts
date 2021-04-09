@@ -56,12 +56,15 @@ export class UserService {
         const userProfile = await userProfileRepository.create(
           userProfilePayload
         );
+        await userProfileRepository.save(userProfile);
 
         const user = userRepository.create({
           ...userPayload,
           state: UserState.WaitingForActivation,
           userProfileId: userProfile.id,
+          profile: userProfile,
         });
+        await userRepository.save(user);
 
         await queryRunner.commitTransaction();
 

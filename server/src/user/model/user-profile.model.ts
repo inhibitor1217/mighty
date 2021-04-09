@@ -28,4 +28,14 @@ export class UserProfile {
 
   @Column('varchar', { nullable: true })
   photo!: string | null;
+
+  static mockValue: UserProfile = {
+    id: -1,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+    displayName: 'mock-display-name',
+    username: null,
+    email: null,
+    photo: null,
+  };
 }

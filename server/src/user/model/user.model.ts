@@ -39,4 +39,15 @@ export class User {
   @OneToOne(() => UserProfile)
   @JoinColumn({ name: 'userProfileId' })
   profile!: UserProfile;
+
+  static mockValue: User = {
+    id: -1,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+    provider: AuthProvider.Mock,
+    providerId: 'mock-provider-id',
+    state: UserState.Mock,
+    userProfileId: UserProfile.mockValue.id,
+    profile: UserProfile.mockValue,
+  };
 }

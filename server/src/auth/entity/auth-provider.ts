@@ -5,6 +5,8 @@ import { unreachable } from '../../utils/unreachable';
 
 export enum AuthProvider {
   Google = 'google',
+
+  Mock = 'mock',
 }
 
 export namespace AuthProvider {
@@ -24,6 +26,8 @@ export namespace AuthProvider {
     switch (authProvider) {
       case AuthProvider.Google:
         return 'google';
+      case AuthProvider.Mock:
+        return 'mock';
       default:
         return unreachable();
     }
