@@ -40,7 +40,7 @@ export class User {
   @JoinColumn({ name: 'userProfileId' })
   profile!: UserProfile;
 
-  static mockValue: User = {
+  static readonly mockValue: User = {
     id: -1,
     createdAt: new Date(0),
     updatedAt: new Date(0),
