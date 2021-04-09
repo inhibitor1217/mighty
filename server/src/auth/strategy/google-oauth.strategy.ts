@@ -4,9 +4,11 @@ import { PassportStrategy } from '@nestjs/passport';
 import { OAuth2Strategy, Profile, VerifyFunction } from 'passport-google-oauth';
 import { GoogleOauthEnvironment } from '../../env-config/entity/google-oauth-environment';
 import { EnvConfigService } from '../../env-config/env-config.service';
+import { UserService } from '../../user/user.service';
+import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { ConsoleColor } from '../../utils/console-color';
 import { GOOGLE_OAUTH_STRATEGY_NAME } from '../const';
-
+import { AuthProvider } from '../entity/auth-provider';
 @Injectable()
 export class GoogleOauthStrategy extends PassportStrategy(
   OAuth2Strategy,
@@ -16,7 +18,10 @@ export class GoogleOauthStrategy extends PassportStrategy(
 
   private static readonly scope = ['email', 'profile'];
 
-  constructor(private envConfig: EnvConfigService) {
+  constructor(
+    private envConfig: EnvConfigService,
+    private userService: UserService
+  ) {
     super({
       clientID: envConfig.get<GoogleOauthEnvironment>('googleOauth')?.clientId,
       clientSecret: envConfig.get<GoogleOauthEnvironment>('googleOauth')
@@ -35,7 +40,19 @@ export class GoogleOauthStrategy extends PassportStrategy(
   ): Promise<void> {
     this.logProfile(profile);
 
-    done(null);
+    const authProvider = AuthProvider.parse(profile.provider);
+    const authProviderId = profile.id;
+
+    const user =
+      (await this.userService.findOneWithProvider(
+        authProvider,
+        authProviderId
+      )) ??
+      (await this.userService.createOne(
+        CreateUserDto.fromGoogleProfile(profile)
+      ));
+
+    done(null, user);
   }
 
   private logProfile(profile: Profile): void {

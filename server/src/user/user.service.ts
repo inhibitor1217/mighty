@@ -5,22 +5,11 @@ import { Repository } from 'typeorm';
 import { AuthProvider } from '../auth/entity/auth-provider';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
+import { CreateUserDto } from './dto/create-user.dto';
 import { UserState } from './entity/user-state';
 import { DuplicateUserProviderIdException } from './exception/duplicate-user-provider-id.exception';
 import { UserProfile } from './model/user-profile.model';
 import { User } from './model/user.model';
-
-type CreateUserPayload = {
-  provider: AuthProvider;
-  providerId: string;
-  profile: {
-    displayName: string;
-    username: string | null;
-    email: string | null;
-    photo: string | null;
-  };
-};
-
 @Injectable()
 export class UserService {
   constructor(
@@ -35,12 +24,19 @@ export class UserService {
   ): Promise<User | null> {
     const user = await this.userRepository.findOne({
       where: { provider, providerId },
+      join: {
+        alias: 'user',
+        leftJoinAndSelect: {
+          profile: 'user.profile',
+        },
+      },
     });
+
     return user ?? null;
   }
 
-  async createOne(payload: CreateUserPayload): Promise<User> {
-    const { profile: userProfilePayload, ...userPayload } = payload;
+  async createOne(dto: CreateUserDto): Promise<User> {
+    const { profile: userProfileDto, ...userDto } = dto;
 
     const queryRunner = this.rdbQueryRunner.create();
     const userRepository = queryRunner.manager.getRepository(User);
@@ -53,13 +49,11 @@ export class UserService {
 
     return (async () => {
       try {
-        const userProfile = await userProfileRepository.create(
-          userProfilePayload
-        );
+        const userProfile = await userProfileRepository.create(userProfileDto);
         await userProfileRepository.save(userProfile);
 
         const user = userRepository.create({
-          ...userPayload,
+          ...userDto,
           state: UserState.WaitingForActivation,
           userProfileId: userProfile.id,
           profile: userProfile,
@@ -74,8 +68,8 @@ export class UserService {
 
         if (e.code === UNIQUE_VIOLATION) {
           throw new DuplicateUserProviderIdException({
-            provider: userPayload.provider,
-            providerId: userPayload.providerId,
+            provider: userDto.provider,
+            providerId: userDto.providerId,
           });
         }
 
