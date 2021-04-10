@@ -1,3 +1,9 @@
+type AnyJson = boolean | number | string | null | JsonArray | JsonMap;
+type JsonMap = {
+  [key: string]: AnyJson;
+};
+type JsonArray = Array<AnyJson>;
+
 declare module 'pg-error-constants' {
   // Class 00 — Successful Completion
   const SUCCESSFUL_COMPLETION = '00000';

@@ -1,19 +1,32 @@
 import type { CookieOptions } from 'express';
 import _ from 'lodash';
 import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { EnvConfigService } from '../env-config/env-config.service';
 import { AppEnvironment } from '../env-config/entity/app-environment';
 import { AppStage } from '../env-config/entity/app-stage';
 import { AuthEnvironment } from '../env-config/entity/auth-environment';
 import { unreachable } from '../utils/unreachable';
-import { CLEAR_COOKIE_OPTIONS, DEFAULT_COOKIE_OPTIONS } from './const';
+import {
+  CLEAR_COOKIE_OPTIONS,
+  DEFAULT_COOKIE_OPTIONS,
+  DEFAULT_JWT_OPTIONS,
+} from './const';
 import { AuthToken } from './entity/auth-token';
 
 type SetCookieFn = (key: string, value: string, options: CookieOptions) => void;
+type TokenPayload = string | JsonMap | JsonArray;
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly envConfig: EnvConfigService) {}
+  constructor(
+    private readonly envConfig: EnvConfigService,
+    private readonly jwtService: JwtService
+  ) {}
+
+  async signToken(token: AuthToken, payload: TokenPayload): Promise<string> {
+    return this.jwtService.signAsync(payload, DEFAULT_JWT_OPTIONS[token]);
+  }
 
   clearAuthCookies(setCookie: SetCookieFn): void {
     setCookie(

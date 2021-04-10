@@ -1,3 +1,4 @@
+import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppStage } from '../env-config/entity/app-stage';
 import { EnvConfigService } from '../env-config/env-config.service';
@@ -8,6 +9,7 @@ import { AuthToken } from './entity/auth-token';
 describe('AuthService', () => {
   let service: AuthService;
   let envConfig: EnvConfigService;
+  let jwt: JwtService;
 
   function mockEnvConfigGet(mockValues: {
     cookieDomain: string;
@@ -27,17 +29,75 @@ describe('AuthService', () => {
     };
   }
 
+  const mockJwtService = { signAsync: () => Promise.resolve() };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, EnvConfigService],
+      providers: [
+        AuthService,
+        EnvConfigService,
+        {
+          provide: JwtService,
+          useValue: mockJwtService,
+        },
+      ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     envConfig = module.get<EnvConfigService>(EnvConfigService);
+    jwt = module.get<JwtService>(JwtService);
+
+    jest.clearAllMocks();
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('signToken correctly signs access token', async () => {
+    /* Given */
+    const signAsync = jest
+      .spyOn(jwt, 'signAsync')
+      .mockImplementation(() => Promise.resolve('mock-token'));
+    const tokenPayload = { foo: 'foo' };
+
+    /* Run */
+    const token = await service.signToken(AuthToken.AccessToken, tokenPayload);
+
+    /* Expect */
+    expect(token).toBe('mock-token');
+
+    expect(signAsync).toBeCalledTimes(1);
+    expect(signAsync).toBeCalledWith(
+      { foo: 'foo' },
+      expect.objectContaining({
+        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
+        expiresIn: expect.any(String),
+      })
+    );
+  });
+
+  it('signToken correctly signs refresh token', async () => {
+    /* Given */
+    const signAsync = jest
+      .spyOn(jwt, 'signAsync')
+      .mockImplementation(() => Promise.resolve('mock-token'));
+    const tokenPayload = { bar: 'bar' };
+
+    /* Run */
+    const token = await service.signToken(AuthToken.RefreshToken, tokenPayload);
+
+    /* Expect */
+    expect(token).toBe('mock-token');
+
+    expect(signAsync).toBeCalledTimes(1);
+    expect(signAsync).toBeCalledWith(
+      { bar: 'bar' },
+      expect.objectContaining({
+        subject: AuthToken.toJwtSubject(AuthToken.RefreshToken),
+        expiresIn: expect.any(String),
+      })
+    );
   });
 
   it('clearAuthCookies clears both access token and refresh token', () => {
