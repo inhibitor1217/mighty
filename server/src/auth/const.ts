@@ -2,7 +2,9 @@ import { JwtSignOptions } from '@nestjs/jwt';
 import type { CookieOptions } from 'express';
 import { AuthToken } from './entity/auth-token';
 
+export const ACCESS_TOKEN_STRATEGY_NAME = 'AccessTokenStrategy';
 export const GOOGLE_OAUTH_STRATEGY_NAME = 'GoogleOauthStrategy';
+export const REFRESH_TOKEN_STRATEGY_NAME = 'RefreshTokenStrategy';
 
 export const DEFAULT_COOKIE_OPTIONS: {
   [authToken in AuthToken]: CookieOptions;

@@ -5,9 +5,11 @@ import { EnvConfigService } from '../env-config/env-config.service';
 import { AuthEnvironment } from '../env-config/entity/auth-environment';
 import { UserModule } from '../user/user.module';
 import { unreachable } from '../utils/unreachable';
-import { AuthService } from './auth.service';
-import { GoogleOauthStrategy } from './strategy/google-oauth.strategy';
 import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { AccessTokenStrategy } from './strategy/access-token.strategy';
+import { GoogleOauthStrategy } from './strategy/google-oauth.strategy';
+import { RefreshTokenStrategy } from './strategy/refresh-token.strategy';
 
 @Module({
   imports: [
@@ -21,7 +23,12 @@ import { AuthController } from './auth.controller';
         unreachable(),
     }),
   ],
-  providers: [AuthService, GoogleOauthStrategy],
+  providers: [
+    AuthService,
+    AccessTokenStrategy,
+    GoogleOauthStrategy,
+    RefreshTokenStrategy,
+  ],
   controllers: [AuthController],
 })
 export class AuthModule {}

@@ -16,10 +16,11 @@ import {
 import { AuthToken } from './entity/auth-token';
 
 type SetCookieFn = (key: string, value: string, options: CookieOptions) => void;
-type TokenPayload = string | JsonMap | JsonArray;
 
 @Injectable()
 export class AuthService {
+  private static readonly authTokenVersion: number = 1;
+
   constructor(
     private readonly envConfig: EnvConfigService,
     private readonly jwtService: JwtService
@@ -44,8 +45,11 @@ export class AuthService {
     );
   }
 
-  async signToken(token: AuthToken, payload: TokenPayload): Promise<string> {
-    return this.jwtService.signAsync(payload, DEFAULT_JWT_OPTIONS[token]);
+  async signToken(token: AuthToken, payload: JsonMap): Promise<string> {
+    return this.jwtService.signAsync(
+      { ...payload, version: AuthService.authTokenVersion },
+      DEFAULT_JWT_OPTIONS[token]
+    );
   }
 
   clearAuthCookies(setCookie: SetCookieFn): void {
