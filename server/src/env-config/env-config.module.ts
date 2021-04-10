@@ -101,6 +101,15 @@ export class EnvConfigModule {
   }
 
   private static readonly schema = Joi.object({
+    auth: Joi.object({
+      jwt: Joi.object({
+        issuer: joiRequiredNonEmptyString,
+        secret: joiRequiredNonEmptyString,
+      }).required(),
+      cookie: Joi.object({
+        domain: joiRequiredNonEmptyString,
+      }).required(),
+    }).required(),
     app: Joi.object({
       name: joiRequiredNonEmptyString,
       version: joiRequiredNonEmptyString,
