@@ -7,6 +7,7 @@ import { AppEnvironment } from '../env-config/entity/app-environment';
 import { AppStage } from '../env-config/entity/app-stage';
 import { AuthEnvironment } from '../env-config/entity/auth-environment';
 import { unreachable } from '../utils/unreachable';
+import { User } from '../user/model/user.model';
 import {
   CLEAR_COOKIE_OPTIONS,
   DEFAULT_COOKIE_OPTIONS,
@@ -23,6 +24,25 @@ export class AuthService {
     private readonly envConfig: EnvConfigService,
     private readonly jwtService: JwtService
   ) {}
+
+  async signAuthCookies(user: User, setCookie: SetCookieFn): Promise<void> {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.signToken(AuthToken.AccessToken, user.toAccessTokenPayload()),
+      this.signToken(AuthToken.RefreshToken, user.toRefreshTokenPayload()),
+    ]);
+
+    setCookie(
+      AuthToken.toCookieKey(AuthToken.AccessToken),
+      accessToken,
+      this.getCookieOptions(AuthToken.AccessToken)
+    );
+
+    setCookie(
+      AuthToken.toCookieKey(AuthToken.RefreshToken),
+      refreshToken,
+      this.getCookieOptions(AuthToken.RefreshToken)
+    );
+  }
 
   async signToken(token: AuthToken, payload: TokenPayload): Promise<string> {
     return this.jwtService.signAsync(payload, DEFAULT_JWT_OPTIONS[token]);

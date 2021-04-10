@@ -2,6 +2,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppStage } from '../env-config/entity/app-stage';
 import { EnvConfigService } from '../env-config/env-config.service';
+import { User } from '../user/model/user.model';
 import { unreachable } from '../utils/unreachable';
 import { AuthService } from './auth.service';
 import { AuthToken } from './entity/auth-token';
@@ -52,6 +53,36 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('signAuthCookies signs cookies correctly', async () => {
+    /* Given */
+    jest.spyOn(envConfig, 'get').mockImplementation(
+      mockEnvConfigGet({
+        cookieDomain: 'example.com',
+        appStage: AppStage.Development,
+      })
+    );
+    jest
+      .spyOn(jwt, 'signAsync')
+      .mockImplementation(() => Promise.resolve('mock-token'));
+    const setCookie = jest.fn();
+
+    /* Run */
+    await service.signAuthCookies(User.mockValue, setCookie);
+
+    /* Expect */
+    expect(setCookie).toBeCalledTimes(2);
+    expect(setCookie).toBeCalledWith(
+      AuthToken.toCookieKey(AuthToken.AccessToken),
+      'mock-token',
+      expect.anything()
+    );
+    expect(setCookie).toBeCalledWith(
+      AuthToken.toCookieKey(AuthToken.RefreshToken),
+      'mock-token',
+      expect.anything()
+    );
   });
 
   it('signToken correctly signs access token', async () => {

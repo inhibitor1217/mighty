@@ -40,14 +40,38 @@ export class User {
   @JoinColumn({ name: 'userProfileId' })
   profile!: UserProfile;
 
-  static readonly mockValue: User = {
-    id: -1,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    provider: AuthProvider.Mock,
-    providerId: 'mock-provider-id',
-    state: UserState.Mock,
-    userProfileId: UserProfile.mockValue.id,
-    profile: UserProfile.mockValue,
-  };
+  toAccessTokenPayload(): JsonMap {
+    return {
+      id: this.id,
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
+      provider: AuthProvider.toString(this.provider),
+      providerId: this.providerId,
+      state: UserState.toString(this.state),
+      userProfileId: this.userProfileId,
+      profile: this.profile.toAccessTokenPayload(),
+    };
+  }
+
+  toRefreshTokenPayload(): JsonMap {
+    return {
+      id: this.id,
+      state: UserState.toString(this.state),
+    };
+  }
+
+  static readonly mockValue: User = (() => {
+    const user = new User();
+
+    user.id = -1;
+    user.createdAt = new Date(0);
+    user.updatedAt = new Date(0);
+    user.provider = AuthProvider.Mock;
+    user.providerId = 'mock-provider-id';
+    user.state = UserState.Mock;
+    user.userProfileId = UserProfile.mockValue.id;
+    user.profile = UserProfile.mockValue;
+
+    return user;
+  })();
 }

@@ -29,13 +29,29 @@ export class UserProfile {
   @Column('varchar', { nullable: true })
   photo!: string | null;
 
-  static readonly mockValue: UserProfile = {
-    id: -1,
-    createdAt: new Date(0),
-    updatedAt: new Date(0),
-    displayName: 'mock-display-name',
-    username: null,
-    email: null,
-    photo: null,
-  };
+  toAccessTokenPayload(): JsonMap {
+    return {
+      id: this.id,
+      createdAt: this.createdAt.toISOString(),
+      updatedAt: this.updatedAt.toISOString(),
+      displayName: this.displayName,
+      username: this.username,
+      email: this.email,
+      photo: this.photo,
+    };
+  }
+
+  static readonly mockValue: UserProfile = (() => {
+    const userProfile = new UserProfile();
+
+    userProfile.id = -1;
+    userProfile.createdAt = new Date(0);
+    userProfile.updatedAt = new Date(0);
+    userProfile.displayName = 'mock-display-name';
+    userProfile.username = null;
+    userProfile.email = null;
+    userProfile.photo = null;
+
+    return userProfile;
+  })();
 }
