@@ -13,6 +13,8 @@ export class AuthController {
   @Get('google/redirect')
   @UseGuards(GoogleOauthGuard)
   async googleOauthRedirect(@Req() req: AuthenticatedRequest) {
-    return req.user;
+    const { user } = req;
+
+    return user;
   }
 }

@@ -1,3 +1,4 @@
+import { JwtModuleOptions } from '@nestjs/jwt';
 import { EnvironmentString } from '../util/environment-string';
 import { BaseEnvironment } from './base-environment';
 
@@ -33,5 +34,12 @@ export class JwtEnvironment implements BaseEnvironment {
       this.environmentString.field('issuer', this.issuer),
       this.environmentString.field('secret', this.secret, { obfuscate: true }),
     ].join('\n');
+  }
+
+  toJwtModuleOptions(): JwtModuleOptions {
+    return {
+      secret: this.secret,
+      signOptions: { issuer: this.issuer },
+    };
   }
 }

@@ -4,7 +4,7 @@ import { EnvironmentString } from '../util/environment-string';
 import { AppStage } from './app-stage';
 import { BaseEnvironment } from './base-environment';
 
-type AppEnvironmentObject = {
+export type AppEnvironmentObject = {
   name: string;
   version: string;
   stage: string;

@@ -5,7 +5,7 @@ import {
 } from './cookie-environment';
 import { JwtEnvironment, JwtEnvironmentObject } from './jwt-environment';
 
-type AuthEnvironmentObject = {
+export type AuthEnvironmentObject = {
   jwt: JwtEnvironmentObject;
   cookie: CookieEnvironmentObject;
 };
