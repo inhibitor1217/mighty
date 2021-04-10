@@ -40,6 +40,33 @@ describe('AuthService', () => {
     expect(service).toBeDefined();
   });
 
+  it('clearAuthCookies clears both access token and refresh token', () => {
+    /* Given */
+    jest.spyOn(envConfig, 'get').mockImplementation(
+      mockEnvConfigGet({
+        cookieDomain: 'example.com',
+        appStage: AppStage.Development,
+      })
+    );
+    const setCookie = jest.fn();
+
+    /* Run */
+    service.clearAuthCookies(setCookie);
+
+    /* Expect */
+    expect(setCookie).toBeCalledTimes(2);
+    expect(setCookie).toBeCalledWith(
+      AuthToken.toCookieKey(AuthToken.AccessToken),
+      expect.anything(),
+      expect.objectContaining({ maxAge: 0 })
+    );
+    expect(setCookie).toBeCalledWith(
+      AuthToken.toCookieKey(AuthToken.RefreshToken),
+      expect.anything(),
+      expect.objectContaining({ maxAge: 0 })
+    );
+  });
+
   it('getCookieOptions should return cookie options from environment', () => {
     /* Given */
     jest.spyOn(envConfig, 'get').mockImplementation(

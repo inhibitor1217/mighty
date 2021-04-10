@@ -8,9 +8,25 @@ import { AuthEnvironment } from '../env-config/entity/auth-environment';
 import { unreachable } from '../utils/unreachable';
 import { CLEAR_COOKIE_OPTIONS, DEFAULT_COOKIE_OPTIONS } from './const';
 import { AuthToken } from './entity/auth-token';
+
+type SetCookieFn = (key: string, value: string, options: CookieOptions) => void;
+
 @Injectable()
 export class AuthService {
   constructor(private readonly envConfig: EnvConfigService) {}
+
+  clearAuthCookies(setCookie: SetCookieFn): void {
+    setCookie(
+      AuthToken.toCookieKey(AuthToken.AccessToken),
+      '',
+      this.getCookieOptions(AuthToken.AccessToken, { clear: true })
+    );
+    setCookie(
+      AuthToken.toCookieKey(AuthToken.RefreshToken),
+      '',
+      this.getCookieOptions(AuthToken.RefreshToken, { clear: true })
+    );
+  }
 
   getCookieOptions(
     token: AuthToken,
