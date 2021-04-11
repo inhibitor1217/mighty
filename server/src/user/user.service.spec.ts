@@ -262,4 +262,20 @@ describe('UserService', () => {
 
     expect(queryRunnerFactory.hasUnresolvedTransaction()).toBe(false);
   });
+
+  it('getSession finds session with given user id', async () => {
+    /* Given */
+    const findOne = jest
+      .spyOn(sessionRepository, 'findOne')
+      .mockReturnValue(Promise.resolve(Session.mockValue));
+
+    /* Run */
+    const session = await service.getSession(0);
+
+    /* Expect */
+    expect(session).toBeTruthy();
+    expect(session!.id).toBe(Session.mockValue.id);
+    expect(findOne).toBeCalledTimes(1);
+    expect(findOne).toBeCalledWith({ where: { userId: 0 } });
+  });
 });

@@ -89,4 +89,9 @@ export class UserService {
       }
     })();
   }
+
+  async getSession(userId: number): Promise<Session | null> {
+    const session = await this.sessionRepository.findOne({ where: { userId } });
+    return session ?? null;
+  }
 }

@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import type { User } from '../../user/model/user.model';
-import type { SessionType } from '../entity/session-type';
+import { SessionType } from '../entity/session-type';
 import type { Room } from './room.model';
 
 @Entity('session')
@@ -41,4 +41,17 @@ export class Session {
   @OneToOne('User')
   @JoinColumn({ name: 'userId' })
   user!: User;
+
+  static get mockValue(): Session {
+    const session = new Session();
+
+    session.id = -1;
+    session.createdAt = new Date(0);
+    session.updatedAt = new Date(0);
+    session.type = SessionType.Mock;
+    session.roomId = -1;
+    session.userId = -1;
+
+    return session;
+  }
 }
