@@ -7,11 +7,13 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import type { AuthenticatedRequest } from '../auth/entity/authenticated-request';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
 
@@ -47,7 +49,8 @@ export class RoomController {
   @Get('list')
   @UseGuards(JwtAuthGuard)
   async list(
-    @Req() req: AuthenticatedRequest
+    @Req() req: AuthenticatedRequest,
+    @Query() paginationQuery: PaginationQuery
   ): Promise<RoomControllerMethodReturn> {
     return { rooms: [], session: null };
   }

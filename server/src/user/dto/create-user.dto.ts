@@ -5,13 +5,13 @@ import { CreateUserProfileDto } from './create-user-profile.dto';
 
 export class CreateUserDto {
   @IsEnum(AuthProvider)
-  provider!: AuthProvider;
+  readonly provider!: AuthProvider;
 
   @IsString()
-  providerId!: string;
+  readonly providerId!: string;
 
   @ValidateNested()
-  profile!: CreateUserProfileDto;
+  readonly profile!: CreateUserProfileDto;
 
   static fromGoogleProfile(profile: GoogleProfile): CreateUserDto {
     return {

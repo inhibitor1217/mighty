@@ -1,4 +1,5 @@
 import cookieParser from 'cookie-parser';
+import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { HttpEnvironment } from './env-config/entity/http-environment';
@@ -11,6 +12,7 @@ async function bootstrap() {
     .get<HttpEnvironment>('http');
 
   app.use(cookieParser());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   await app.listen(httpEnvironment?.port ?? 3000);
 }
