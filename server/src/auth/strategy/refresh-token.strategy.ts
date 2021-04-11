@@ -31,6 +31,6 @@ export class RefreshTokenStrategy extends PassportStrategy(
   }
 
   private static jwtFromRequest(req: Request): string | null {
-    return req.cookies(AuthToken.toCookieKey(AuthToken.RefreshToken));
+    return req.cookies[AuthToken.toCookieKey(AuthToken.RefreshToken)];
   }
 }

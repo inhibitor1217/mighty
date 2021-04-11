@@ -149,7 +149,7 @@ export class User {
     throw new InvalidTokenPayloadException(field, value, expectedType);
   }
 
-  static readonly mockValue: User = (() => {
+  static get mockValue(): User {
     const user = new User();
 
     user.id = -1;
@@ -162,5 +162,5 @@ export class User {
     user.profile = UserProfile.mockValue;
 
     return user;
-  })();
+  }
 }

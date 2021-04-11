@@ -112,7 +112,7 @@ export class UserProfile {
     throw new InvalidTokenPayloadException(field, value, expectedType);
   }
 
-  static readonly mockValue: UserProfile = (() => {
+  static get mockValue(): UserProfile {
     const userProfile = new UserProfile();
 
     userProfile.id = -1;
@@ -124,5 +124,5 @@ export class UserProfile {
     userProfile.photo = null;
 
     return userProfile;
-  })();
+  }
 }

@@ -9,9 +9,11 @@ import { Test } from '@nestjs/testing';
 import { EnvConfigService } from '../../env-config/env-config.service';
 import { UserState } from '../../user/entity/user-state';
 import { User } from '../../user/model/user.model';
+import { UserService } from '../../user/user.service';
 import { AuthService } from '../auth.service';
 import { AuthToken } from '../entity/auth-token';
 import { AccessTokenStrategy } from '../strategy/access-token.strategy';
+import { RefreshTokenStrategy } from '../strategy/refresh-token.strategy';
 import { JwtAuthGuard } from './jwt-auth.guard';
 
 describe('JwtAuthGuard', () => {
@@ -28,6 +30,10 @@ describe('JwtAuthGuard', () => {
       },
     }),
   };
+
+  const mockUserService = {
+    findOneById: _.noop,
+  } as jest.Mocked<UserService>;
 
   function getMockExecutionContext(options?: {
     accessToken?: string;
@@ -68,10 +74,11 @@ describe('JwtAuthGuard', () => {
           useValue: mockEnvConfig,
         },
         AccessTokenStrategy,
+        RefreshTokenStrategy,
       ],
     }).compile();
 
-    guard = new JwtAuthGuard();
+    guard = new JwtAuthGuard(mockUserService);
 
     jest.clearAllMocks();
   });
@@ -433,12 +440,39 @@ describe('JwtAuthGuard', () => {
       { expiresIn: '7d' }
     );
     const context = getMockExecutionContext({ refreshToken });
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(User.mockValue));
 
     /* Run */
     const canActivate = await guard.canActivate(context);
 
     /* Expect */
     expect(canActivate).toBe(true);
+  });
+
+  it('request with refresh token of nonexistent user should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(null));
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('User not found')
+    );
   });
 
   it('request with refresh token of deleted user should throw ForbiddenException', async () => {
@@ -455,7 +489,11 @@ describe('JwtAuthGuard', () => {
     );
     const context = getMockExecutionContext({ refreshToken });
 
-    /* TODO: mock UserService to return deleted user */
+    const deletedUser = User.mockValue;
+    deletedUser.state = UserState.Deleted;
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(deletedUser));
 
     /* Run */
     /* Expect */
@@ -471,14 +509,18 @@ describe('JwtAuthGuard', () => {
     );
     const refreshToken = await jwtService.signAsync(
       {
-        ...User.mockValue.toAccessTokenPayload(),
+        ...User.mockValue.toRefreshTokenPayload(),
         version: AuthService.authTokenVersion,
       },
       { expiresIn: '7d' }
     );
     const context = getMockExecutionContext({ refreshToken });
 
-    /* TODO: mock UserService to return banned user */
+    const bannedUser = User.mockValue;
+    bannedUser.state = UserState.Banned;
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(bannedUser));
 
     /* Run */
     /* Expect */
@@ -487,7 +529,52 @@ describe('JwtAuthGuard', () => {
     );
   });
 
-  it('request with access token should not refer to UserService', async () => {});
+  it('request with access token should not refer to UserService', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
+    const accessToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ accessToken });
+    const findOneById = jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(User.mockValue));
 
-  it('request with refresh token should refer to UserService.findOneById once', async () => {});
+    /* Run */
+    await guard.canActivate(context);
+
+    /* Expect */
+    expect(findOneById).not.toBeCalled();
+  });
+
+  it('request with refresh token should refer to UserService.findOneById once', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+    const findOneById = jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(User.mockValue));
+
+    /* Run */
+    await guard.canActivate(context);
+
+    /* Expect */
+    expect(findOneById).toBeCalledTimes(1);
+    expect(findOneById).toBeCalledWith(User.mockValue.id);
+  });
 });
