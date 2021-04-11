@@ -1,8 +1,13 @@
 import _ from 'lodash';
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import {
+  ExecutionContext,
+  ForbiddenException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtModuleOptions, JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { EnvConfigService } from '../../env-config/env-config.service';
+import { UserState } from '../../user/entity/user-state';
 import { User } from '../../user/model/user.model';
 import { AuthService } from '../auth.service';
 import { AuthToken } from '../entity/auth-token';
@@ -236,6 +241,54 @@ describe('JwtAuthGuard', () => {
     expect(canActivate).toBe(true);
   });
 
+  it('request with access token of deleted user should throw ForbiddenException', async () => {
+    /* Given */
+    const deletedUser = User.mockValue;
+    deletedUser.state = UserState.Deleted;
+
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
+    const accessToken = await jwtService.signAsync(
+      {
+        ...deletedUser.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '5m' }
+    );
+    const context = getMockExecutionContext({ accessToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new ForbiddenException('Deleted user')
+    );
+  });
+
+  it('request with access token of banned user should throw ForbiddenException', async () => {
+    /* Given */
+    const bannedUser = User.mockValue;
+    bannedUser.state = UserState.Banned;
+
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
+    const accessToken = await jwtService.signAsync(
+      {
+        ...bannedUser.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '5m' }
+    );
+    const context = getMockExecutionContext({ accessToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new ForbiddenException('Banned user')
+    );
+  });
+
   it('request with invalid refresh token should throw UnauthorizedException', async () => {
     /* Given */
     const jwtService = new JwtService(
@@ -386,6 +439,52 @@ describe('JwtAuthGuard', () => {
 
     /* Expect */
     expect(canActivate).toBe(true);
+  });
+
+  it('request with refresh token of deleted user should throw ForbiddenException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* TODO: mock UserService to return deleted user */
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new ForbiddenException('Deleted user')
+    );
+  });
+
+  it('request with refresh token of banned user should throw ForbiddenException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* TODO: mock UserService to return banned user */
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new ForbiddenException('Banned user')
+    );
   });
 
   it('request with access token should not refer to UserService', async () => {});

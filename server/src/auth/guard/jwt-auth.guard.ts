@@ -3,6 +3,7 @@ import _ from 'lodash';
 import {
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -82,7 +83,9 @@ export class JwtAuthGuard implements CanActivate {
     }
 
     try {
-      return User.fromAccessTokenPayload(payload);
+      const user = User.fromAccessTokenPayload(payload);
+      this.filterAuthorizableUser(user);
+      return user;
     } catch (e) {
       if (e instanceof InvalidTokenPayloadException) {
         throw new UnauthorizedException(
@@ -156,6 +159,20 @@ export class JwtAuthGuard implements CanActivate {
         return 'Invalid refresh token';
       default:
         return unreachable();
+    }
+  }
+
+  private filterAuthorizableUser(user: User): void {
+    if (user.isBanned()) {
+      throw new ForbiddenException('Banned user');
+    }
+
+    if (user.isDeleted()) {
+      throw new ForbiddenException('Deleted user');
+    }
+
+    if (!user.canAuthorize()) {
+      throw new ForbiddenException();
     }
   }
 }

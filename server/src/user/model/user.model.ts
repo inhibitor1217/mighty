@@ -42,6 +42,18 @@ export class User {
   @JoinColumn({ name: 'userProfileId' })
   profile!: UserProfile;
 
+  isBanned(): boolean {
+    return [UserState.Banned].includes(this.state);
+  }
+
+  isDeleted(): boolean {
+    return [UserState.Deleted].includes(this.state);
+  }
+
+  canAuthorize(): boolean {
+    return ![UserState.Banned, UserState.Deleted].includes(this.state);
+  }
+
   toAccessTokenPayload(): JsonMap {
     return {
       id: this.id,
