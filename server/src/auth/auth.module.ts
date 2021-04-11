@@ -10,6 +10,7 @@ import { AuthService } from './auth.service';
 import { AccessTokenStrategy } from './strategy/access-token.strategy';
 import { GoogleOauthStrategy } from './strategy/google-oauth.strategy';
 import { RefreshTokenStrategy } from './strategy/refresh-token.strategy';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Module({
   imports: [
@@ -28,7 +29,9 @@ import { RefreshTokenStrategy } from './strategy/refresh-token.strategy';
     AccessTokenStrategy,
     GoogleOauthStrategy,
     RefreshTokenStrategy,
+    JwtAuthGuard,
   ],
   controllers: [AuthController],
+  exports: [JwtAuthGuard],
 })
 export class AuthModule {}
