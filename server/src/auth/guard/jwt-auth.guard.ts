@@ -7,6 +7,7 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { authenticate } from 'passport';
 import type { AuthenticateOptions } from 'passport';
 import { User } from '../../user/model/user.model';
@@ -18,6 +19,7 @@ import { InvalidTokenPayloadException } from '../../user/exception/invalid-token
 import { AuthToken } from '../entity/auth-token';
 import { unreachable } from '../../utils/unreachable';
 import { UserService } from '../../user/user.service';
+import { MetadataKeys } from '../../utils/metadata-keys';
 
 type PassportAuthenticateCallbackAuthInfo = {
   message: string;
@@ -36,13 +38,16 @@ export class JwtAuthGuard implements CanActivate {
     userProperty: JwtAuthGuard.authenticateUserProperty,
   };
 
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private reflector: Reflector,
+    private readonly userService: UserService
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest<Request>();
     const res = context.switchToHttp().getResponse<Response>();
 
-    const user = await this.authorizeWithTokens(req, res);
+    const user = await this.authorizeWithTokens(req, res, context);
 
     req[JwtAuthGuard.authenticateUserProperty] = user;
     return true;
@@ -50,21 +55,14 @@ export class JwtAuthGuard implements CanActivate {
 
   private async authorizeWithTokens(
     req: Request,
-    res: Response
+    res: Response,
+    context: ExecutionContext
   ): Promise<User> {
     try {
-      return await this.authorizeWithAccessToken(
-        req,
-        res,
-        JwtAuthGuard.authenticateOptions
-      );
+      return await this.authorizeWithAccessToken(req, res, context);
     } catch (accessTokenErr) {
       try {
-        return await this.authorizeWithRefreshToken(
-          req,
-          res,
-          JwtAuthGuard.authenticateOptions
-        );
+        return await this.authorizeWithRefreshToken(req, res, context);
       } catch (refreshTokenErr) {
         if (this.isNonExistentTokenException(refreshTokenErr)) {
           throw accessTokenErr;
@@ -77,7 +75,7 @@ export class JwtAuthGuard implements CanActivate {
   private async authorizeWithAccessToken(
     req: Request,
     res: Response,
-    options: AuthenticateOptions
+    context: ExecutionContext
   ): Promise<User> {
     const exceptionMessagePrefix = this.getPassportExceptionMessagePrefix(
       AuthToken.AccessToken
@@ -85,7 +83,7 @@ export class JwtAuthGuard implements CanActivate {
 
     const accessTokenPayload = await this.getPassportFn(req, res)(
       ACCESS_TOKEN_STRATEGY_NAME,
-      options,
+      JwtAuthGuard.authenticateOptions,
       (err, payload, info) => {
         if (!_.isNil(err)) {
           throw err;
@@ -112,7 +110,7 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const user = User.fromAccessTokenPayload(payload);
-      this.filterAuthorizableUser(user);
+      this.filterAuthorizableUser(user, context);
       return user;
     } catch (e) {
       if (e instanceof InvalidTokenPayloadException) {
@@ -128,7 +126,7 @@ export class JwtAuthGuard implements CanActivate {
   private async authorizeWithRefreshToken(
     req: Request,
     res: Response,
-    options: AuthenticateOptions
+    context: ExecutionContext
   ): Promise<User> {
     const exceptionMessagePrefix = this.getPassportExceptionMessagePrefix(
       AuthToken.RefreshToken
@@ -136,7 +134,7 @@ export class JwtAuthGuard implements CanActivate {
 
     const refreshTokenPayload = await this.getPassportFn(req, res)(
       REFRESH_TOKEN_STRATEGY_NAME,
-      options,
+      JwtAuthGuard.authenticateOptions,
       (err, payload, info) => {
         if (!_.isNil(err)) {
           throw err;
@@ -173,7 +171,7 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('User not found');
     }
 
-    this.filterAuthorizableUser(user);
+    this.filterAuthorizableUser(user, context);
 
     return user;
   }
@@ -247,7 +245,7 @@ export class JwtAuthGuard implements CanActivate {
     }
   }
 
-  private filterAuthorizableUser(user: User): void {
+  private filterAuthorizableUser(user: User, context: ExecutionContext): void {
     if (user.isBanned()) {
       throw new ForbiddenException('Banned user');
     }
@@ -256,7 +254,12 @@ export class JwtAuthGuard implements CanActivate {
       throw new ForbiddenException('Deleted user');
     }
 
-    if (!user.canAuthorize()) {
+    const allowWaiting = this.reflector.get<boolean>(
+      MetadataKeys.AllowUserWaitingForActivation,
+      context.getHandler()
+    );
+
+    if (!user.canAuthorize({ allowWaiting })) {
       throw new ForbiddenException();
     }
   }

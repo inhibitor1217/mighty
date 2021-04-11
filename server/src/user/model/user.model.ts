@@ -54,8 +54,20 @@ export class User {
     return [UserState.Deleted].includes(this.state);
   }
 
-  canAuthorize(): boolean {
-    return ![UserState.Banned, UserState.Deleted].includes(this.state);
+  isWaitingForActivation(): boolean {
+    return [UserState.WaitingForActivation].includes(this.state);
+  }
+
+  canAuthorize(options?: { allowWaiting: boolean }): boolean {
+    if (options?.allowWaiting) {
+      return ![UserState.Banned, UserState.Deleted].includes(this.state);
+    }
+
+    return ![
+      UserState.Banned,
+      UserState.Deleted,
+      UserState.WaitingForActivation,
+    ].includes(this.state);
   }
 
   toAccessTokenPayload(): JsonMap {

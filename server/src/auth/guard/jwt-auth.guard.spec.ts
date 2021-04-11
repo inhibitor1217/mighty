@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { JwtModuleOptions, JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { EnvConfigService } from '../../env-config/env-config.service';
@@ -21,6 +22,10 @@ describe('JwtAuthGuard', () => {
 
   const jwtSecret = 'jwt-secret';
   const jwtIssuer = 'example.com';
+
+  const mockReflector = {
+    get: _.noop,
+  } as jest.Mocked<Reflector>;
 
   const mockEnvConfig = {
     get: () => ({
@@ -40,6 +45,7 @@ describe('JwtAuthGuard', () => {
     refreshToken?: string;
   }): jest.Mocked<ExecutionContext> {
     return {
+      getHandler: _.noop,
       switchToHttp: () => ({
         getRequest: () => ({
           cookies: {
@@ -51,7 +57,7 @@ describe('JwtAuthGuard', () => {
             )]: options?.refreshToken,
           },
         }),
-        getResponse: () => ({}),
+        getResponse: _.noop,
       }),
     } as jest.Mocked<ExecutionContext>;
   }
@@ -78,9 +84,9 @@ describe('JwtAuthGuard', () => {
       ],
     }).compile();
 
-    guard = new JwtAuthGuard(mockUserService);
+    guard = new JwtAuthGuard(mockReflector, mockUserService);
 
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {
@@ -294,6 +300,56 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(context)).rejects.toThrow(
       new ForbiddenException('Banned user')
     );
+  });
+
+  it('request with access token of user waiting for activation should throw ForbiddenException', async () => {
+    /* Given */
+    const userWaitingForActivation = User.mockValue;
+    userWaitingForActivation.state = UserState.WaitingForActivation;
+
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
+    const accessToken = await jwtService.signAsync(
+      {
+        ...userWaitingForActivation.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '5m' }
+    );
+    const context = getMockExecutionContext({ accessToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException
+    );
+  });
+
+  it('request with access token of user waiting for activation should pass, if AllowUserWaitingForActivation metadata is set', async () => {
+    /* Given */
+    const userWaitingForActivation = User.mockValue;
+    userWaitingForActivation.state = UserState.WaitingForActivation;
+
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
+    const accessToken = await jwtService.signAsync(
+      {
+        ...userWaitingForActivation.toAccessTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '5m' }
+    );
+    const context = getMockExecutionContext({ accessToken });
+
+    jest.spyOn(mockReflector, 'get').mockReturnValue(true);
+
+    /* Run */
+    const canActivate = await guard.canActivate(context);
+
+    /* Expect */
+    expect(canActivate).toBe(true);
   });
 
   it('request with invalid refresh token should throw UnauthorizedException', async () => {
@@ -527,6 +583,62 @@ describe('JwtAuthGuard', () => {
     await expect(guard.canActivate(context)).rejects.toThrow(
       new ForbiddenException('Banned user')
     );
+  });
+
+  it('request with refresh token of user waiting for activation should throw ForbiddenException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    const userWaitingForActivation = User.mockValue;
+    userWaitingForActivation.state = UserState.WaitingForActivation;
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(userWaitingForActivation));
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      ForbiddenException
+    );
+  });
+
+  it('request with refresh token of user waiting for activation should pass, if AllowUserWaitingForActivation metadata is set', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    const userWaitingForActivation = User.mockValue;
+    userWaitingForActivation.state = UserState.WaitingForActivation;
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(userWaitingForActivation));
+
+    jest.spyOn(mockReflector, 'get').mockReturnValue(true);
+
+    /* Run */
+    const canActivate = await guard.canActivate(context);
+
+    /* Expect */
+    expect(canActivate).toBe(true);
   });
 
   it('request with access token should not refer to UserService', async () => {

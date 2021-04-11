@@ -48,7 +48,7 @@ describe('AuthService', () => {
     envConfig = module.get<EnvConfigService>(EnvConfigService);
     jwt = module.get<JwtService>(JwtService);
 
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
   });
 
   it('should be defined', () => {

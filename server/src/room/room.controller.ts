@@ -19,15 +19,21 @@ import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
+import { Room } from './model/room.model';
+import { Session } from './model/session.model';
+import { RoomService } from './room.service';
 
-interface RoomControllerMethodReturn extends JsonMap {
-  rooms: JsonMap[];
-  session: JsonMap | null;
+interface RoomControllerMethodReturn {
+  rooms: Room[];
+  session: Session | null;
 }
 
 @Controller('room')
 export class RoomController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly roomService: RoomService
+  ) {}
 
   @Post()
   @UseGuards(JwtAuthGuard)
@@ -36,13 +42,18 @@ export class RoomController {
     @Body() dto: CreateRoomDto
   ): Promise<RoomControllerMethodReturn> {
     const { user } = req;
-    const session = await this.userService.getSession(user.id);
+    const currentSession = await this.userService.getSession(user.id);
 
-    if (!_.isNil(session)) {
+    if (!_.isNil(currentSession)) {
       throw new DuplicateSessionException();
     }
 
-    return { rooms: [], session: null };
+    const {
+      room,
+      session: createdSession,
+    } = await this.roomService.createAndJoin(dto.toServiceDto(user.id));
+
+    return { rooms: [room], session: createdSession };
   }
 
   @Post(':roomId/join')
