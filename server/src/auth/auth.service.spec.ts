@@ -100,7 +100,7 @@ describe('AuthService', () => {
 
     expect(signAsync).toBeCalledTimes(1);
     expect(signAsync).toBeCalledWith(
-      { foo: 'foo' },
+      expect.objectContaining({ foo: 'foo' }),
       expect.objectContaining({
         subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
         expiresIn: expect.any(String),
@@ -123,7 +123,7 @@ describe('AuthService', () => {
 
     expect(signAsync).toBeCalledTimes(1);
     expect(signAsync).toBeCalledWith(
-      { bar: 'bar' },
+      expect.objectContaining({ bar: 'bar' }),
       expect.objectContaining({
         subject: AuthToken.toJwtSubject(AuthToken.RefreshToken),
         expiresIn: expect.any(String),

@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import {
   Column,
   CreateDateColumn,
@@ -5,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { InvalidTokenPayloadException } from '../exception/invalid-token-payload.exception';
 
 @Entity('user_profile')
 export class UserProfile {
@@ -39,6 +41,75 @@ export class UserProfile {
       email: this.email,
       photo: this.photo,
     };
+  }
+
+  static fromAccessTokenPayload(payload: JsonMap): UserProfile {
+    const userProfile = new UserProfile();
+
+    userProfile.id = _.isNumber(payload.id)
+      ? payload.id
+      : this.throwInvalidTokenPayloadException('id', payload.id, 'number');
+
+    userProfile.createdAt = _.isString(payload.createdAt)
+      ? new Date(Date.parse(payload.createdAt))
+      : this.throwInvalidTokenPayloadException(
+          'createdAt',
+          payload.createdAt,
+          'string'
+        );
+
+    userProfile.updatedAt = _.isString(payload.updatedAt)
+      ? new Date(Date.parse(payload.updatedAt))
+      : this.throwInvalidTokenPayloadException(
+          'updatedAt',
+          payload.updatedAt,
+          'string'
+        );
+
+    userProfile.displayName = _.isString(payload.displayName)
+      ? payload.displayName
+      : this.throwInvalidTokenPayloadException(
+          'displayName',
+          payload.displayName,
+          'string'
+        );
+
+    userProfile.username =
+      _.isNil(payload.username) || _.isString(payload.username)
+        ? payload.username
+        : this.throwInvalidTokenPayloadException(
+            'username',
+            payload.username,
+            'string or null'
+          );
+
+    userProfile.email =
+      _.isNil(payload.email) || _.isString(payload.email)
+        ? payload.email
+        : this.throwInvalidTokenPayloadException(
+            'email',
+            payload.email,
+            'string or null'
+          );
+
+    userProfile.photo =
+      _.isNil(payload.photo) || _.isString(payload.photo)
+        ? payload.photo
+        : this.throwInvalidTokenPayloadException(
+            'photo',
+            payload.photo,
+            'string or null'
+          );
+
+    return userProfile;
+  }
+
+  private static throwInvalidTokenPayloadException(
+    field: string,
+    value: any,
+    expectedType: string
+  ): never {
+    throw new InvalidTokenPayloadException(field, value, expectedType);
   }
 
   static readonly mockValue: UserProfile = (() => {

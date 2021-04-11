@@ -3,6 +3,7 @@ import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthenticatedRequest } from './entity/authenticated-request';
 import { GoogleOauthGuard } from './guard/google-oauth.guard';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -22,6 +23,13 @@ export class AuthController {
   ) {
     const { user } = req;
     await this.authService.signAuthCookies(user, res.cookie.bind(res));
+    return user;
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@Req() req: AuthenticatedRequest) {
+    const { user } = req;
     return user;
   }
 }

@@ -19,7 +19,7 @@ type SetCookieFn = (key: string, value: string, options: CookieOptions) => void;
 
 @Injectable()
 export class AuthService {
-  private static readonly authTokenVersion: number = 1;
+  static readonly authTokenVersion: number = 1;
 
   constructor(
     private readonly envConfig: EnvConfigService,

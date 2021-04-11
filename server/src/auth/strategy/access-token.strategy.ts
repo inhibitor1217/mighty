@@ -30,7 +30,7 @@ export class AccessTokenStrategy extends PassportStrategy(
     return payload;
   }
 
-  private static jwtFromRequest(req: Request): string | null {
-    return req.cookies(AuthToken.toCookieKey(AuthToken.AccessToken));
+  private static jwtFromRequest(req: Request): string | undefined {
+    return req.cookies[AuthToken.toCookieKey(AuthToken.AccessToken)];
   }
 }

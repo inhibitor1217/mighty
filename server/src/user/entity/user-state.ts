@@ -30,6 +30,8 @@ export namespace UserState {
         return UserState.Deleted;
       case 'waiting-for-activation':
         return UserState.WaitingForActivation;
+      case 'mock':
+        return UserState.Mock;
       default:
         return unreachable();
     }

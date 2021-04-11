@@ -17,6 +17,8 @@ export namespace AuthProvider {
       case 'google':
       case 'Google':
         return AuthProvider.Google;
+      case 'mock':
+        return AuthProvider.Mock;
       default:
         throw new Error(`${value} is not a valid AuthProvider`);
     }
