@@ -1,5 +1,6 @@
+import _ from 'lodash';
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { JwtModuleOptions, JwtService } from '@nestjs/jwt';
 import { Test } from '@nestjs/testing';
 import { EnvConfigService } from '../../env-config/env-config.service';
 import { User } from '../../user/model/user.model';
@@ -13,6 +14,7 @@ describe('JwtAuthGuard', () => {
 
   const jwtSecret = 'jwt-secret';
   const jwtIssuer = 'example.com';
+
   const mockEnvConfig = {
     get: () => ({
       jwt: {
@@ -43,6 +45,16 @@ describe('JwtAuthGuard', () => {
     } as jest.Mocked<ExecutionContext>;
   }
 
+  function getDefaultJwtOptions(authToken: AuthToken): JwtModuleOptions {
+    return {
+      secret: jwtSecret,
+      signOptions: {
+        issuer: jwtIssuer,
+        subject: AuthToken.toCookieKey(authToken),
+      },
+    };
+  }
+
   beforeEach(async () => {
     await Test.createTestingModule({
       providers: [
@@ -70,19 +82,17 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('No auth token provided')
     );
   });
 
   it('request with invalid access token should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: 'invalid-secret',
-      signOptions: {
-        issuer: jwtIssuer,
-        subject: AuthToken.toCookieKey(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.AccessToken), {
+        secret: 'invalid-secret',
+      })
+    );
     const accessToken = await jwtService.signAsync(
       {
         ...User.mockValue.toAccessTokenPayload(),
@@ -95,16 +105,17 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token')
     );
   });
 
   it('request with wrong access token subject should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: { issuer: jwtIssuer, subject: 'foo.com' },
-    });
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.AccessToken), {
+        signOptions: { subject: 'foo' },
+      })
+    );
     const accessToken = await jwtService.signAsync(
       {
         ...User.mockValue.toAccessTokenPayload(),
@@ -117,19 +128,17 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token: wrong subject')
     );
   });
 
   it('request with wrong access token issuer should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: {
-        issuer: 'bar.com',
-        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.AccessToken), {
+        signOptions: { issuer: 'bar.com' },
+      })
+    );
     const accessToken = await jwtService.signAsync(
       {
         ...User.mockValue.toAccessTokenPayload(),
@@ -142,19 +151,15 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token: wrong issuer')
     );
   });
 
   it('request with expired access token should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: {
-        issuer: jwtIssuer,
-        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
     const accessToken = await jwtService.signAsync(
       {
         ...User.mockValue.toAccessTokenPayload(),
@@ -167,19 +172,15 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token: token expired')
     );
   });
 
   it('request with invalid access token payload should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: {
-        issuer: jwtIssuer,
-        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
     const accessToken = await jwtService.signAsync(
       {
         id: 1,
@@ -192,19 +193,15 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token: invalid payload')
     );
   });
 
   it('request with access token payload without version should throw UnauthorizedException', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: {
-        issuer: jwtIssuer,
-        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
     const accessToken = await jwtService.signAsync(
       User.mockValue.toAccessTokenPayload(),
       { expiresIn: '5m' }
@@ -214,19 +211,15 @@ describe('JwtAuthGuard', () => {
     /* Run */
     /* Expect */
     await expect(guard.canActivate(context)).rejects.toThrow(
-      UnauthorizedException
+      new UnauthorizedException('Invalid access token: no version specified')
     );
   });
 
   it('request with valid access token and payload should pass', async () => {
     /* Given */
-    const jwtService = new JwtService({
-      secret: jwtSecret,
-      signOptions: {
-        issuer: jwtIssuer,
-        subject: AuthToken.toJwtSubject(AuthToken.AccessToken),
-      },
-    });
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.AccessToken)
+    );
     const accessToken = await jwtService.signAsync(
       {
         ...User.mockValue.toAccessTokenPayload(),
@@ -242,4 +235,160 @@ describe('JwtAuthGuard', () => {
     /* Expect */
     expect(canActivate).toBe(true);
   });
+
+  it('request with invalid refresh token should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.RefreshToken), {
+        secret: 'invalid-secret',
+      })
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token')
+    );
+  });
+
+  it('request with wrong refresh token subject should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.RefreshToken), {
+        signOptions: { subject: AuthToken.toJwtSubject(AuthToken.AccessToken) },
+      })
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token: wrong subject')
+    );
+  });
+
+  it('request with wrong refresh token issuer should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      _.merge({}, getDefaultJwtOptions(AuthToken.RefreshToken), {
+        signOptions: { issuer: 'other.service.com' },
+      })
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token: wrong issuer')
+    );
+  });
+
+  it('request with expired refresh token should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '-10m' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token: token expired')
+    );
+  });
+
+  it('request with invalid refresh token payload should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        uid: 1,
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token: invalid payload')
+    );
+  });
+
+  it('request with refresh token payload without version should throw UnauthorizedException', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    /* Expect */
+    await expect(guard.canActivate(context)).rejects.toThrow(
+      new UnauthorizedException('Invalid refresh token: no version specified')
+    );
+  });
+
+  it('request with valid refresh token and payload should pass', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+
+    /* Run */
+    const canActivate = await guard.canActivate(context);
+
+    /* Expect */
+    expect(canActivate).toBe(true);
+  });
+
+  it('request with access token should not refer to UserService', async () => {});
+
+  it('request with refresh token should refer to UserService.findOneById once', async () => {});
 });
