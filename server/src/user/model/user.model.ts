@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { AuthProvider } from '../../auth/entity/auth-provider';
+import type { Session } from '../../room/model/session.model';
 import { UserState } from '../entity/user-state';
 import { InvalidTokenPayloadException } from '../exception/invalid-token-payload.exception';
 import { UserProfile } from './user-profile.model';
@@ -38,9 +39,12 @@ export class User {
   @Column('integer')
   userProfileId!: number;
 
-  @OneToOne(() => UserProfile)
+  @OneToOne('UserProfile')
   @JoinColumn({ name: 'userProfileId' })
   profile!: UserProfile;
+
+  @OneToOne('Session')
+  session!: Session | null;
 
   isBanned(): boolean {
     return [UserState.Banned].includes(this.state);

@@ -11,6 +11,7 @@ import {
   rdbQueryRunnerProviderMock,
 } from '../rdb/query-runner/rdb-query-runner.provider.mock';
 import { createRepositoryMock } from '../rdb/rdb-repository.mock';
+import { Session } from '../room/model/session.model';
 import { User } from './model/user.model';
 import { UserProfile } from './model/user-profile.model';
 import { UserService } from './user.service';
@@ -45,6 +46,7 @@ function mockCreateUserProfile(params: DeepPartial<UserProfile>): UserProfile {
 
 describe('UserService', () => {
   let service: UserService;
+  let sessionRepository: Repository<Session>;
   let userRepository: Repository<User>;
   let userProfileRepository: Repository<UserProfile>;
   let queryRunnerFactory: MockedRdbQueryRunnerFactory;
@@ -71,6 +73,7 @@ describe('UserService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
+        createRepositoryMock(Session),
         createRepositoryMock(User),
         createRepositoryMock(UserProfile),
         rdbQueryRunnerProviderMock,
@@ -78,6 +81,9 @@ describe('UserService', () => {
       ],
     }).compile();
 
+    sessionRepository = module.get<Repository<Session>>(
+      getRepositoryToken(Session)
+    );
     userRepository = module.get<Repository<User>>(getRepositoryToken(User));
     userProfileRepository = module.get<Repository<UserProfile>>(
       getRepositoryToken(UserProfile)
@@ -89,8 +95,7 @@ describe('UserService', () => {
   });
 
   it('should be defined', () => {
-    expect(userRepository).toBeDefined();
-    expect(queryRunnerFactory).toBeDefined();
+    expect(sessionRepository).toBeDefined();
     expect(service).toBeDefined();
   });
 

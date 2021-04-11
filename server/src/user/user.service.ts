@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { AuthProvider } from '../auth/entity/auth-provider';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
+import { Session } from '../room/model/session.model';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserState } from './entity/user-state';
 import { DuplicateUserProviderIdException } from './exception/duplicate-user-provider-id.exception';
@@ -15,6 +16,7 @@ export class UserService {
   constructor(
     @Inject(RDB_QUERY_RUNNER_PROVIDER)
     private rdbQueryRunner: RdbQueryRunnerFactory,
+    @InjectRepository(Session) private sessionRepository: Repository<Session>,
     @InjectRepository(User) private userRepository: Repository<User>
   ) {}
 
