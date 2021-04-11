@@ -5,7 +5,7 @@ import { OAuth2Strategy, Profile, VerifyFunction } from 'passport-google-oauth';
 import { GoogleOauthEnvironment } from '../../env-config/entity/google-oauth-environment';
 import { EnvConfigService } from '../../env-config/env-config.service';
 import { UserService } from '../../user/user.service';
-import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { CreateUserServiceDto } from '../../user/dto/create-user.service.dto';
 import { ConsoleColor } from '../../utils/console-color';
 import { GOOGLE_OAUTH_STRATEGY_NAME } from '../const';
 import { AuthProvider } from '../entity/auth-provider';
@@ -49,7 +49,7 @@ export class GoogleOauthStrategy extends PassportStrategy(
         authProviderId
       )) ??
       (await this.userService.createOne(
-        CreateUserDto.fromGoogleProfile(profile)
+        CreateUserServiceDto.fromGoogleProfile(profile)
       ));
 
     done(null, user);

@@ -17,7 +17,7 @@ function getFirstValueOrNull<T extends { value: string }>(
   return element.value;
 }
 
-export class CreateUserProfileDto {
+export class CreateUserProfileServiceDto {
   @IsString()
   @Length(1, 255)
   readonly displayName!: string;
@@ -35,7 +35,9 @@ export class CreateUserProfileDto {
   @ValidateIf((object, value) => _.isNil(value))
   readonly photo!: string | null;
 
-  static fromGoogleProfile(profile: GoogleProfile): CreateUserProfileDto {
+  static fromGoogleProfile(
+    profile: GoogleProfile
+  ): CreateUserProfileServiceDto {
     return {
       displayName: profile.displayName,
       username: profile.username ?? null,

@@ -1,9 +1,9 @@
 import { IsEnum, IsString, ValidateNested } from 'class-validator';
 import { Profile as GoogleProfile } from 'passport-google-oauth';
 import { AuthProvider } from '../../auth/entity/auth-provider';
-import { CreateUserProfileDto } from './create-user-profile.dto';
+import { CreateUserProfileServiceDto } from './create-user-profile.service.dto';
 
-export class CreateUserDto {
+export class CreateUserServiceDto {
   @IsEnum(AuthProvider)
   readonly provider!: AuthProvider;
 
@@ -11,13 +11,13 @@ export class CreateUserDto {
   readonly providerId!: string;
 
   @ValidateNested()
-  readonly profile!: CreateUserProfileDto;
+  readonly profile!: CreateUserProfileServiceDto;
 
-  static fromGoogleProfile(profile: GoogleProfile): CreateUserDto {
+  static fromGoogleProfile(profile: GoogleProfile): CreateUserServiceDto {
     return {
       provider: AuthProvider.parse(profile.provider),
       providerId: profile.id,
-      profile: CreateUserProfileDto.fromGoogleProfile(profile),
+      profile: CreateUserProfileServiceDto.fromGoogleProfile(profile),
     };
   }
 }

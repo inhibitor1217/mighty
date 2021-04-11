@@ -6,7 +6,7 @@ import { AuthProvider } from '../auth/entity/auth-provider';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
 import { Session } from '../room/model/session.model';
-import { CreateUserDto } from './dto/create-user.dto';
+import { CreateUserServiceDto } from './dto/create-user.service.dto';
 import { UserState } from './entity/user-state';
 import { DuplicateUserProviderIdException } from './exception/duplicate-user-provider-id.exception';
 import { UserProfile } from './model/user-profile.model';
@@ -45,7 +45,7 @@ export class UserService {
     return user ?? null;
   }
 
-  async createOne(dto: CreateUserDto): Promise<User> {
+  async createOne(dto: CreateUserServiceDto): Promise<User> {
     const { profile: userProfileDto, ...userDto } = dto;
 
     const queryRunner = this.rdbQueryRunner.create();

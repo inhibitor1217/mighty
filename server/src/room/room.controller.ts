@@ -11,11 +11,14 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import _ from 'lodash';
 import type { AuthenticatedRequest } from '../auth/entity/authenticated-request';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
+import { UserService } from '../user/user.service';
 import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
+import { DuplicateSessionException } from './exception/duplicate-session.exception';
 
 interface RoomControllerMethodReturn extends JsonMap {
   rooms: JsonMap[];
@@ -24,13 +27,20 @@ interface RoomControllerMethodReturn extends JsonMap {
 
 @Controller('room')
 export class RoomController {
+  constructor(private readonly userService: UserService) {}
+
   @Post()
   @UseGuards(JwtAuthGuard)
   async create(
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreateRoomDto
   ): Promise<RoomControllerMethodReturn> {
-    // NOTE: should be only available if no session exist
+    const { user } = req;
+    const session = await this.userService.getSession(user.id);
+
+    if (!_.isNil(session)) {
+      throw new DuplicateSessionException();
+    }
 
     return { rooms: [], session: null };
   }
