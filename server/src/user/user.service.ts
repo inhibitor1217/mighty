@@ -18,6 +18,14 @@ export class UserService {
     @InjectRepository(User) private userRepository: Repository<User>
   ) {}
 
+  async findOneById(id: number): Promise<User | null> {
+    const user = await this.userRepository.findOne(id, {
+      join: { alias: 'user', leftJoinAndSelect: { profile: 'user.profile' } },
+    });
+
+    return user ?? null;
+  }
+
   async findOneWithProvider(
     provider: AuthProvider,
     providerId: string

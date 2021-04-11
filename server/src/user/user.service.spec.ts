@@ -19,15 +19,20 @@ import { DuplicateUserProviderIdException } from './exception/duplicate-user-pro
 
 function mockFindOneFrom(
   users: User[]
-): (options: any) => Promise<User | undefined> {
-  return (options) =>
-    Promise.resolve(
+): (idOrOptions: any) => Promise<User | undefined> {
+  return (idOrOptions: any) => {
+    if (_.isNumber(idOrOptions)) {
+      return Promise.resolve(users.find((user) => user.id === idOrOptions));
+    }
+
+    return Promise.resolve(
       users.find(
         (user) =>
-          user.provider === options.where.provider &&
-          user.providerId === options.where.providerId
+          user.provider === idOrOptions.where.provider &&
+          user.providerId === idOrOptions.where.providerId
       )
     );
+  };
 }
 
 function mockCreateUser(params: DeepPartial<User>): User {
@@ -87,6 +92,43 @@ describe('UserService', () => {
     expect(userRepository).toBeDefined();
     expect(queryRunnerFactory).toBeDefined();
     expect(service).toBeDefined();
+  });
+
+  it('findOneById returns user with given id', async () => {
+    /* Given */
+    const users = _.range(0, 10).map((index) => {
+      const user = new User();
+      user.id = index;
+      return user;
+    });
+    jest
+      .spyOn(userRepository, 'findOne')
+      .mockImplementation(mockFindOneFrom(users));
+
+    /* Run */
+    const result = await service.findOneById(7);
+
+    /* Expect */
+    expect(result).toBeTruthy();
+    expect(result!.id).toBe(7);
+  });
+
+  it('findOneById returns null if user with given id does not exist', async () => {
+    /* Given */
+    const users = _.range(0, 10).map((index) => {
+      const user = new User();
+      user.id = index;
+      return user;
+    });
+    jest
+      .spyOn(userRepository, 'findOne')
+      .mockImplementation(mockFindOneFrom(users));
+
+    /* Run */
+    const result = await service.findOneById(42);
+
+    /* Expect */
+    expect(result).toBeNull();
   });
 
   it('findOneWithProvider returns user with given provider and provider id', async () => {
