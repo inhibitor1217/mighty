@@ -36,6 +36,10 @@ describe('JwtAuthGuard', () => {
     }),
   };
 
+  const mockAuthService = {
+    signAuthCookies: _.noop,
+  } as jest.Mocked<AuthService>;
+
   const mockUserService = {
     findOneById: _.noop,
   } as jest.Mocked<UserService>;
@@ -57,7 +61,7 @@ describe('JwtAuthGuard', () => {
             )]: options?.refreshToken,
           },
         }),
-        getResponse: _.noop,
+        getResponse: () => ({ cookie: _.noop }),
       }),
     } as jest.Mocked<ExecutionContext>;
   }
@@ -84,7 +88,7 @@ describe('JwtAuthGuard', () => {
       ],
     }).compile();
 
-    guard = new JwtAuthGuard(mockReflector, mockUserService);
+    guard = new JwtAuthGuard(mockReflector, mockAuthService, mockUserService);
 
     jest.restoreAllMocks();
   });
@@ -688,5 +692,32 @@ describe('JwtAuthGuard', () => {
     /* Expect */
     expect(findOneById).toBeCalledTimes(1);
     expect(findOneById).toBeCalledWith(User.mockValue.id);
+  });
+
+  it('request with refresh token resets cookies', async () => {
+    /* Given */
+    const jwtService = new JwtService(
+      getDefaultJwtOptions(AuthToken.RefreshToken)
+    );
+    const refreshToken = await jwtService.signAsync(
+      {
+        ...User.mockValue.toRefreshTokenPayload(),
+        version: AuthService.authTokenVersion,
+      },
+      { expiresIn: '7d' }
+    );
+    const context = getMockExecutionContext({ refreshToken });
+    jest
+      .spyOn(mockUserService, 'findOneById')
+      .mockReturnValue(Promise.resolve(User.mockValue));
+    const signAuthCookies = jest
+      .spyOn(mockAuthService, 'signAuthCookies')
+      .mockImplementation();
+
+    /* Run */
+    await guard.canActivate(context);
+
+    /* Expect */
+    expect(signAuthCookies).toBeCalled();
   });
 });

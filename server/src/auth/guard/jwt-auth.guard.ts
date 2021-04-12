@@ -20,6 +20,7 @@ import { AuthToken } from '../entity/auth-token';
 import { unreachable } from '../../utils/unreachable';
 import { UserService } from '../../user/user.service';
 import { MetadataKeys } from '../../utils/metadata-keys';
+import { AuthService } from '../auth.service';
 
 type PassportAuthenticateCallbackAuthInfo = {
   message: string;
@@ -40,6 +41,7 @@ export class JwtAuthGuard implements CanActivate {
 
   constructor(
     private reflector: Reflector,
+    private readonly authService: AuthService,
     private readonly userService: UserService
   ) {}
 
@@ -62,7 +64,9 @@ export class JwtAuthGuard implements CanActivate {
       return await this.authorizeWithAccessToken(req, res, context);
     } catch (accessTokenErr) {
       try {
-        return await this.authorizeWithRefreshToken(req, res, context);
+        const user = await this.authorizeWithRefreshToken(req, res, context);
+        await this.authService.signAuthCookies(user, res.cookie.bind(res));
+        return user;
       } catch (refreshTokenErr) {
         if (this.isNonExistentTokenException(refreshTokenErr)) {
           throw accessTokenErr;
