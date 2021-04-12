@@ -59,7 +59,7 @@ export class UserService {
 
     return (async () => {
       try {
-        const userProfile = await userProfileRepository.create(userProfileDto);
+        const userProfile = userProfileRepository.create(userProfileDto);
         await userProfileRepository.save(userProfile);
 
         const user = userRepository.create({
