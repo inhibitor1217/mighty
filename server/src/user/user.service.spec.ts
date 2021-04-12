@@ -263,6 +263,32 @@ describe('UserService', () => {
     expect(queryRunnerFactory.hasUnresolvedTransaction()).toBe(false);
   });
 
+  it('hasSession returns true if user has session', async () => {
+    /* Given */
+    jest
+      .spyOn(sessionRepository, 'findOne')
+      .mockReturnValue(Promise.resolve(Session.mockValue));
+
+    /* Run */
+    const hasSession = await service.hasSession(0);
+
+    /* Expect */
+    expect(hasSession).toBe(true);
+  });
+
+  it('hasSession returns false if user has no session', async () => {
+    /* Given */
+    jest
+      .spyOn(sessionRepository, 'findOne')
+      .mockReturnValue(Promise.resolve(undefined));
+
+    /* Run */
+    const hasSession = await service.hasSession(42);
+
+    /* Expect */
+    expect(hasSession).toBe(false);
+  });
+
   it('getSession finds session with given user id', async () => {
     /* Given */
     const findOne = jest

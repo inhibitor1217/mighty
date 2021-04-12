@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import _ from 'lodash';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
 import { Repository } from 'typeorm';
 import { AuthProvider } from '../auth/entity/auth-provider';
@@ -88,6 +89,10 @@ export class UserService {
         await queryRunner.release();
       }
     })();
+  }
+
+  async hasSession(userId: number): Promise<boolean> {
+    return !_.isNil(await this.getSession(userId));
   }
 
   async getSession(userId: number): Promise<Session | null> {
