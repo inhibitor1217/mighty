@@ -29,6 +29,7 @@ import { RoomService } from './room.service';
 
 interface RoomControllerMethodReturn {
   rooms: Room[];
+  deletedRoomId?: number;
   session: Session | null;
 }
 
@@ -116,9 +117,9 @@ export class RoomController {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
 
-    // NOTE: should delete room if no sessions exist
+    const { room, deletedRoomId } = await this.roomService.leave(session);
 
-    return { rooms: [], session: null };
+    return { rooms: _.isNil(room) ? [] : [room], deletedRoomId, session: null };
   }
 
   private async getUserSessionOrThrow(user: User): Promise<Session> {

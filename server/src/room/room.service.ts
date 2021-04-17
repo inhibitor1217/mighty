@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
-import type { QueryRunner, Repository } from 'typeorm';
+import { Not, QueryRunner, Repository } from 'typeorm';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import type { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
@@ -24,6 +24,17 @@ import { Session } from './model/session.model';
 interface JoinReturn {
   room: Room;
   session: Session;
+}
+
+interface LeaveReturn {
+  room?: Room;
+  deletedRoomId?: number;
+}
+
+interface TransactionContext {
+  queryRunner: QueryRunner;
+  roomRepository: Repository<Room>;
+  sessionRepository: Repository<Session>;
 }
 
 @Injectable()
@@ -81,33 +92,24 @@ export class RoomService {
   }
 
   async join(roomId: number, userId: number): Promise<JoinReturn> {
-    const {
-      queryRunner,
-      roomRepository,
-      sessionRepository,
-    } = this.createTransaction();
+    const transactionContext = this.createTransaction();
+    const { queryRunner } = transactionContext;
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     return (async () => {
       try {
-        const room = await roomRepository
-          .createQueryBuilder()
-          .setLock('pessimistic_write')
-          .where({ id: roomId })
-          .getOne();
+        const room = await this.getRoomAndAcquireLock(
+          roomId,
+          transactionContext
+        );
 
-        if (_.isNil(room)) {
-          this.throwRoomNotFoundException(roomId);
-        }
-
-        const session = await this.joinRoomImpl(room, userId);
-
-        await Promise.all([
-          roomRepository.save(room),
-          sessionRepository.save(session),
-        ]);
+        const session = await this.joinRoomImpl(
+          room,
+          userId,
+          transactionContext
+        );
 
         await queryRunner.commitTransaction();
 
@@ -122,11 +124,15 @@ export class RoomService {
     })();
   }
 
-  private joinRoomImpl(room: Room, userId: number): Promise<Session> {
-    return this.joinRoomAsPlayer(room, userId)
+  private joinRoomImpl(
+    room: Room,
+    userId: number,
+    transactionContext: TransactionContext
+  ): Promise<Session> {
+    return this.joinRoomAsPlayer(room, userId, transactionContext)
       .catch((e) => {
         if (e instanceof MaxPlayersExceededException) {
-          return this.joinRoomAsObserver(room, userId);
+          return this.joinRoomAsObserver(room, userId, transactionContext);
         }
 
         throw e;
@@ -140,7 +146,11 @@ export class RoomService {
       });
   }
 
-  private async joinRoomAsPlayer(room: Room, userId: number): Promise<Session> {
+  private async joinRoomAsPlayer(
+    room: Room,
+    userId: number,
+    { roomRepository, sessionRepository }: TransactionContext
+  ): Promise<Session> {
     const { numPlayers, maxPlayers } = room;
 
     if (numPlayers >= maxPlayers) {
@@ -156,12 +166,18 @@ export class RoomService {
     session.roomId = room.id;
     session.userId = userId;
 
+    await Promise.all([
+      roomRepository.save(room),
+      sessionRepository.save(session),
+    ]);
+
     return session;
   }
 
   private async joinRoomAsObserver(
     room: Room,
-    userId: number
+    userId: number,
+    { roomRepository, sessionRepository }: TransactionContext
   ): Promise<Session> {
     const { numObservers, maxObservers } = room;
 
@@ -178,7 +194,104 @@ export class RoomService {
     session.roomId = room.id;
     session.userId = userId;
 
+    await Promise.all([
+      roomRepository.save(room),
+      sessionRepository.save(session),
+    ]);
+
     return session;
+  }
+
+  async leave(session: Session): Promise<LeaveReturn> {
+    const transactionContext = this.createTransaction();
+    const { queryRunner } = transactionContext;
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    return (async () => {
+      try {
+        const room = await this.getRoomAndAcquireLock(
+          session.roomId,
+          transactionContext
+        );
+
+        const newOwnerSession = await this.getOwnerSessionCandidate(
+          room,
+          transactionContext
+        );
+
+        return _.isNil(newOwnerSession)
+          ? await this.deleteRoomImpl(room, transactionContext)
+          : await this.leaveRoomImpl(
+              room,
+              session,
+              newOwnerSession,
+              transactionContext
+            );
+      } catch (e) {
+        await queryRunner.rollbackTransaction();
+
+        throw e;
+      } finally {
+        await queryRunner.release();
+      }
+    })();
+  }
+
+  private async getOwnerSessionCandidate(
+    room: Room,
+    { sessionRepository }: TransactionContext
+  ): Promise<Session | undefined> {
+    const session = await sessionRepository.findOne({
+      where: { id: Not(room.ownerSessionId), roomId: room.id },
+      order: { createdAt: 'ASC' },
+    });
+
+    return session;
+  }
+
+  private async leaveRoomImpl(
+    room: Room,
+    session: Session,
+    newOwnerSession: Session,
+    { queryRunner, roomRepository, sessionRepository }: TransactionContext
+  ): Promise<LeaveReturn> {
+    const { type: sessionType } = session;
+
+    // eslint-disable-next-line no-param-reassign
+    room.ownerSessionId = newOwnerSession.id;
+    await roomRepository.save(room);
+
+    await sessionRepository.delete(session);
+
+    switch (sessionType) {
+      case SessionType.Player:
+        // eslint-disable-next-line no-param-reassign
+        room.numPlayers -= 1;
+        break;
+      case SessionType.Observer:
+        // eslint-disable-next-line no-param-reassign
+        room.numObservers -= 1;
+        break;
+      default:
+        break;
+    }
+
+    await roomRepository.save(room);
+
+    await queryRunner.commitTransaction();
+
+    return { room };
+  }
+
+  private async deleteRoomImpl(
+    room: Room,
+    { queryRunner, roomRepository }: TransactionContext
+  ): Promise<LeaveReturn> {
+    await roomRepository.delete(room);
+    await queryRunner.commitTransaction();
+    return { deletedRoomId: room.id };
   }
 
   async patchOne(dto: PatchRoomServiceDto): Promise<Room> {
@@ -191,34 +304,25 @@ export class RoomService {
       ownerUserId,
     } = dto;
 
-    const {
-      queryRunner,
-      roomRepository,
-      sessionRepository,
-    } = this.createTransaction();
+    const transactionContext = this.createTransaction();
+    const { queryRunner, roomRepository } = transactionContext;
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     return (async () => {
       try {
+        const room = await this.getRoomAndAcquireLock(
+          roomId,
+          transactionContext
+        );
         const newOwnerSession = _.isNil(ownerUserId)
           ? undefined
           : await this.getSessionOfRoomByUserId(
               roomId,
               ownerUserId,
-              sessionRepository
+              transactionContext
             );
-
-        const room = await roomRepository
-          .createQueryBuilder()
-          .setLock('pessimistic_write')
-          .where({ id: roomId })
-          .getOne();
-
-        if (_.isNil(room)) {
-          this.throwRoomNotFoundException(roomId);
-        }
 
         this.ensureSessionOwnsRoom(room, sessionId);
         if (!_.isNil(maxPlayers)) {
@@ -248,11 +352,7 @@ export class RoomService {
     })();
   }
 
-  private createTransaction(): {
-    queryRunner: QueryRunner;
-    roomRepository: Repository<Room>;
-    sessionRepository: Repository<Session>;
-  } {
+  private createTransaction(): TransactionContext {
     const queryRunner = this.rdbQueryRunner.create();
     const roomRepository = queryRunner.manager.getRepository(Room);
     const sessionRepository = queryRunner.manager.getRepository(Session);
@@ -260,10 +360,27 @@ export class RoomService {
     return { queryRunner, roomRepository, sessionRepository };
   }
 
+  private async getRoomAndAcquireLock(
+    roomId: number,
+    { roomRepository }: TransactionContext
+  ): Promise<Room> {
+    const room = await roomRepository
+      .createQueryBuilder()
+      .setLock('pessimistic_write')
+      .where({ id: roomId })
+      .getOne();
+
+    if (_.isNil(room)) {
+      this.throwRoomNotFoundException(roomId);
+    }
+
+    return room;
+  }
+
   private async getSessionOfRoomByUserId(
     roomId: number,
     userId: number,
-    sessionRepository: Repository<Session>
+    { sessionRepository }: TransactionContext
   ): Promise<Session> {
     const session = await sessionRepository.findOne({
       where: { userId, roomId },
