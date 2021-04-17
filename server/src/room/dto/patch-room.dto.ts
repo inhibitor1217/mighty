@@ -1,4 +1,5 @@
 import { IsInt, IsOptional, IsString, Length, Max, Min } from 'class-validator';
+import { Session } from '../model/session.model';
 import { PatchRoomServiceDto } from './patch-room.service.dto';
 
 export class PatchRoomDto {
@@ -19,11 +20,18 @@ export class PatchRoomDto {
   @Max(8)
   readonly maxObservers?: number;
 
-  toServiceDto(): PatchRoomServiceDto {
+  @IsOptional()
+  @IsInt()
+  readonly ownerUserId?: number;
+
+  toServiceDto(session: Session): PatchRoomServiceDto {
     return {
+      roomId: session.roomId,
+      sessionId: session.id,
       name: this.name,
       maxPlayers: this.maxPlayers,
       maxObservers: this.maxObservers,
+      ownerUserId: this.ownerUserId,
     };
   }
 }

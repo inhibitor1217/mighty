@@ -1,6 +1,12 @@
 import { IsInt, IsOptional, IsString, Length, Max, Min } from 'class-validator';
 
 export class PatchRoomServiceDto {
+  @IsInt()
+  readonly roomId!: number;
+
+  @IsInt()
+  readonly sessionId!: number;
+
   @IsOptional()
   @IsString()
   @Length(1, 255)
@@ -17,4 +23,8 @@ export class PatchRoomServiceDto {
   @Min(0)
   @Max(8)
   readonly maxObservers?: number;
+
+  @IsOptional()
+  @IsInt()
+  readonly ownerUserId?: number;
 }

@@ -103,11 +103,9 @@ export class RoomController {
   ): Promise<RoomControllerMethodReturn> {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
-    const room = await this.roomService.getBySession(session);
+    const room = await this.roomService.patchOne(dto.toServiceDto(session));
 
-    // NOTE: should be only available to the owner of the room
-
-    return { rooms: [], session: null };
+    return { rooms: [room], session };
   }
 
   @Delete()

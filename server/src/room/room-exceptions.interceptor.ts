@@ -2,6 +2,7 @@ import {
   BadRequestException,
   CallHandler,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   NestInterceptor,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { FullRoomException } from './exception/full-room.exception';
 import { MaxObserversExceededException } from './exception/max-observers-exceeded.exception';
 import { MaxPlayersExceededException } from './exception/max-players-exceeded.exception';
 import { NoSessionException } from './exception/no-session.exception';
+import { SessionNotAllowedActionException } from './exception/session-not-allowed-action.exception';
 
 @Injectable()
 export class RoomExceptionsInterceptor implements NestInterceptor {
@@ -26,6 +28,10 @@ export class RoomExceptionsInterceptor implements NestInterceptor {
           e instanceof NoSessionException
         ) {
           throw new BadRequestException(e.message);
+        }
+
+        if (e instanceof SessionNotAllowedActionException) {
+          throw new ForbiddenException(e.message);
         }
 
         throw e;
