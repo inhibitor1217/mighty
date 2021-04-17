@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -11,6 +10,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import _ from 'lodash';
 import type { AuthenticatedRequest } from '../auth/entity/authenticated-request';
@@ -21,10 +21,10 @@ import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
-import { FullRoomException } from './exception/full-room.exception';
 import { NoSessionException } from './exception/no-session.exception';
 import { Room } from './model/room.model';
 import { Session } from './model/session.model';
+import { RoomExceptionsInterceptor } from './room-exceptions.interceptor';
 import { RoomService } from './room.service';
 
 interface RoomControllerMethodReturn {
@@ -33,7 +33,7 @@ interface RoomControllerMethodReturn {
 }
 
 @Controller('room')
-// TODO implement custom exception filter to intercept session exceptions
+@UseInterceptors(RoomExceptionsInterceptor)
 export class RoomController {
   constructor(
     private readonly userService: UserService,
@@ -46,22 +46,14 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreateRoomDto
   ): Promise<RoomControllerMethodReturn> {
-    try {
-      const { user } = req;
-      await this.ensureUserHasNoSessions(user);
+    const { user } = req;
+    await this.ensureUserHasNoSessions(user);
 
-      const { room, session } = await this.roomService.createAndJoin(
-        dto.toServiceDto(user.id)
-      );
+    const { room, session } = await this.roomService.createAndJoin(
+      dto.toServiceDto(user.id)
+    );
 
-      return { rooms: [room], session };
-    } catch (e) {
-      if (e instanceof DuplicateSessionException) {
-        throw new BadRequestException(e.message);
-      }
-
-      throw e;
-    }
+    return { rooms: [room], session };
   }
 
   @Post(':roomId/join')
@@ -70,24 +62,12 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Param('roomId', ParseIntPipe) roomId: number
   ): Promise<RoomControllerMethodReturn> {
-    try {
-      const { user } = req;
-      await this.ensureUserHasNoSessions(user);
+    const { user } = req;
+    await this.ensureUserHasNoSessions(user);
 
-      const { room, session } = await this.roomService.join(roomId, user.id);
+    const { room, session } = await this.roomService.join(roomId, user.id);
 
-      return { rooms: [room], session };
-    } catch (e) {
-      if (e instanceof DuplicateSessionException) {
-        throw new BadRequestException(e.message);
-      }
-
-      if (e instanceof FullRoomException) {
-        throw new BadRequestException(e.message);
-      }
-
-      throw e;
-    }
+    return { rooms: [room], session };
   }
 
   private async ensureUserHasNoSessions(user: User): Promise<void> {
@@ -123,8 +103,8 @@ export class RoomController {
   ): Promise<RoomControllerMethodReturn> {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
+    const room = await this.roomService.getBySession(session);
 
-    // NOTE: patches room of current session
     // NOTE: should be only available to the owner of the room
 
     return { rooms: [], session: null };
@@ -137,8 +117,8 @@ export class RoomController {
   ): Promise<RoomControllerMethodReturn> {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
+    const room = await this.roomService.getBySession(session);
 
-    // NOTE: leave room of current session
     // NOTE: should delete room if no sessions exist
 
     return { rooms: [], session: null };

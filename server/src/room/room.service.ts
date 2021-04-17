@@ -5,7 +5,9 @@ import { UNIQUE_VIOLATION } from 'pg-error-constants';
 import type { Repository } from 'typeorm';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import type { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
+import { unreachable } from '../utils/unreachable';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
+import { PatchRoomServiceDto } from './dto/patch-room.service.dto';
 import { SessionType } from './entity/session-type';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
 import { FullRoomException } from './exception/full-room.exception';
@@ -168,5 +170,19 @@ export class RoomService {
     session.userId = userId;
 
     return session;
+  }
+
+  async patchOne(dto: PatchRoomServiceDto): Promise<Room> {
+    return Promise.resolve(Room.mockValue);
+  }
+
+  async getBySession(session: Session): Promise<Room> {
+    const room = await this.roomRepository.findOne(session.roomId);
+
+    if (_.isNil(room)) {
+      return unreachable();
+    }
+
+    return room;
   }
 }
