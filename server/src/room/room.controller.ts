@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -20,6 +21,7 @@ import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
+import { FullRoomException } from './exception/full-room.exception';
 import { NoSessionException } from './exception/no-session.exception';
 import { Room } from './model/room.model';
 import { Session } from './model/session.model';
@@ -44,15 +46,22 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Body() dto: CreateRoomDto
   ): Promise<RoomControllerMethodReturn> {
-    const { user } = req;
-    await this.ensureUserHasNoSessions(user);
+    try {
+      const { user } = req;
+      await this.ensureUserHasNoSessions(user);
 
-    const {
-      room,
-      session: createdSession,
-    } = await this.roomService.createAndJoin(dto.toServiceDto(user.id));
+      const { room, session } = await this.roomService.createAndJoin(
+        dto.toServiceDto(user.id)
+      );
 
-    return { rooms: [room], session: createdSession };
+      return { rooms: [room], session };
+    } catch (e) {
+      if (e instanceof DuplicateSessionException) {
+        throw new BadRequestException(e.message);
+      }
+
+      throw e;
+    }
   }
 
   @Post(':roomId/join')
@@ -61,11 +70,24 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Param('roomId', ParseIntPipe) roomId: number
   ): Promise<RoomControllerMethodReturn> {
-    const { user } = req;
-    await this.ensureUserHasNoSessions(user);
+    try {
+      const { user } = req;
+      await this.ensureUserHasNoSessions(user);
 
-    // TODO implement joining room via service
-    return { rooms: [], session: null };
+      const { room, session } = await this.roomService.join(roomId, user.id);
+
+      return { rooms: [room], session };
+    } catch (e) {
+      if (e instanceof DuplicateSessionException) {
+        throw new BadRequestException(e.message);
+      }
+
+      if (e instanceof FullRoomException) {
+        throw new BadRequestException(e.message);
+      }
+
+      throw e;
+    }
   }
 
   private async ensureUserHasNoSessions(user: User): Promise<void> {

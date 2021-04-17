@@ -23,6 +23,12 @@ export class Room {
   @Column('varchar')
   name!: string;
 
+  @Column('int', { default: 0 })
+  numPlayers!: number;
+
+  @Column('int', { default: 0 })
+  numObservers!: number;
+
   @Column('int', { default: Room.defaultMaxPlayers })
   maxPlayers!: number;
 
@@ -46,6 +52,8 @@ export class Room {
     room.createdAt = new Date(0);
     room.updatedAt = new Date(0);
     room.name = 'mock-room-name';
+    room.numPlayers = 0;
+    room.numObservers = 0;
     room.maxPlayers = Room.defaultMaxPlayers;
     room.maxObservers = Room.defaultMaxObservers;
     room.ownerSessionId = -1;
