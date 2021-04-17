@@ -115,7 +115,6 @@ export class RoomController {
   ): Promise<RoomControllerMethodReturn> {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
-    const room = await this.roomService.getBySession(session);
 
     // NOTE: should delete room if no sessions exist
 

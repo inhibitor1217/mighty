@@ -7,10 +7,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
-import type { Repository } from 'typeorm';
+import type { QueryRunner, Repository } from 'typeorm';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import type { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
-import { unreachable } from '../utils/unreachable';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
 import { PatchRoomServiceDto } from './dto/patch-room.service.dto';
 import { SessionType } from './entity/session-type';
@@ -39,9 +38,11 @@ export class RoomService {
   async createAndJoin(dto: CreateRoomServiceDto): Promise<JoinReturn> {
     const { userId, name, maxPlayers, maxObservers } = dto;
 
-    const queryRunner = this.rdbQueryRunner.create();
-    const roomRepository = queryRunner.manager.getRepository(Room);
-    const sessionRepository = queryRunner.manager.getRepository(Session);
+    const {
+      queryRunner,
+      roomRepository,
+      sessionRepository,
+    } = this.createTransaction();
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -80,9 +81,11 @@ export class RoomService {
   }
 
   async join(roomId: number, userId: number): Promise<JoinReturn> {
-    const queryRunner = this.rdbQueryRunner.create();
-    const roomRepository = queryRunner.manager.getRepository(Room);
-    const sessionRepository = queryRunner.manager.getRepository(Session);
+    const {
+      queryRunner,
+      roomRepository,
+      sessionRepository,
+    } = this.createTransaction();
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -188,9 +191,11 @@ export class RoomService {
       ownerUserId,
     } = dto;
 
-    const queryRunner = this.rdbQueryRunner.create();
-    const roomRepository = queryRunner.manager.getRepository(Room);
-    const sessionRepository = queryRunner.manager.getRepository(Session);
+    const {
+      queryRunner,
+      roomRepository,
+      sessionRepository,
+    } = this.createTransaction();
 
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -243,6 +248,18 @@ export class RoomService {
     })();
   }
 
+  private createTransaction(): {
+    queryRunner: QueryRunner;
+    roomRepository: Repository<Room>;
+    sessionRepository: Repository<Session>;
+  } {
+    const queryRunner = this.rdbQueryRunner.create();
+    const roomRepository = queryRunner.manager.getRepository(Room);
+    const sessionRepository = queryRunner.manager.getRepository(Session);
+
+    return { queryRunner, roomRepository, sessionRepository };
+  }
+
   private async getSessionOfRoomByUserId(
     roomId: number,
     userId: number,
@@ -259,10 +276,6 @@ export class RoomService {
     return session;
   }
 
-  private throwRoomNotFoundException(roomId: number): never {
-    throw new NotFoundException({ roomId }, 'Room not found');
-  }
-
   private ensureSessionOwnsRoom(room: Room, session: Session): void;
   private ensureSessionOwnsRoom(room: Room, sessionId: number): void;
   private ensureSessionOwnsRoom(
@@ -276,6 +289,10 @@ export class RoomService {
     if (!sessionOwnsRoom) {
       this.throwSessionIsNotAnOwnerException();
     }
+  }
+
+  private throwRoomNotFoundException(roomId: number): never {
+    throw new NotFoundException({ roomId }, 'Room not found');
   }
 
   private throwSessionIsNotAnOwnerException(): never {
@@ -298,15 +315,5 @@ export class RoomService {
         `Cannot set max observers to ${maxObservers}: room has ${room.numObservers} observers`
       );
     }
-  }
-
-  async getBySession(session: Session): Promise<Room> {
-    const room = await this.roomRepository.findOne(session.roomId);
-
-    if (_.isNil(room)) {
-      return unreachable();
-    }
-
-    return room;
   }
 }
