@@ -6,6 +6,11 @@ import { AuthenticatedRequest } from './entity/authenticated-request';
 import { GoogleOauthGuard } from './guard/google-oauth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 
+interface AuthControllerMethodReturn {
+  users?: User[];
+  deletedUserId?: number;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -21,22 +26,34 @@ export class AuthController {
   async googleOauthRedirect(
     @Req() req: AuthenticatedRequest,
     @Res({ passthrough: true }) res: Response
-  ): Promise<User> {
+  ): Promise<AuthControllerMethodReturn> {
     const { user } = req;
+
     await this.authService.signAuthCookies(user, res.cookie.bind(res));
-    return user;
+
+    return { users: [user] };
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  async me(@Req() req: AuthenticatedRequest): Promise<User> {
+  async me(
+    @Req() req: AuthenticatedRequest
+  ): Promise<AuthControllerMethodReturn> {
     const { user } = req;
-    return user;
+
+    return { users: [user] };
   }
 
   @Delete('signout')
   @UseGuards(JwtAuthGuard)
-  async signOut(@Res({ passthrough: true }) res: Response): Promise<void> {
+  async signOut(
+    @Req() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response
+  ): Promise<AuthControllerMethodReturn> {
+    const { user } = req;
+
     this.authService.clearAuthCookies(res.cookie.bind(res));
+
+    return { deletedUserId: user.id };
   }
 }
