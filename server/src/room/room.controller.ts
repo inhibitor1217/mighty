@@ -30,7 +30,7 @@ import { RoomService } from './room.service';
 interface RoomControllerMethodReturn {
   rooms: Room[];
   deletedRoomId?: number;
-  session: Session | null;
+  sessions?: Session[];
 }
 
 @Controller('room')
@@ -54,7 +54,7 @@ export class RoomController {
       dto.toServiceDto(user.id)
     );
 
-    return { rooms: [room], session };
+    return { rooms: [room], sessions: [session] };
   }
 
   @Post(':roomId/join')
@@ -66,9 +66,10 @@ export class RoomController {
     const { user } = req;
     await this.ensureUserHasNoSessions(user);
 
-    const { room, session } = await this.roomService.join(roomId, user.id);
+    const { room } = await this.roomService.join(roomId, user.id);
+    const sessions = await this.roomService.getSessions(roomId);
 
-    return { rooms: [room], session };
+    return { rooms: [room], sessions };
   }
 
   private async ensureUserHasNoSessions(user: User): Promise<void> {
@@ -84,7 +85,7 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Query() paginationQuery: PaginationQuery
   ): Promise<RoomControllerMethodReturn> {
-    return { rooms: [], session: null };
+    return { rooms: [] };
   }
 
   @Get(':roomId')
@@ -93,7 +94,7 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Param('roomId', ParseIntPipe) roomId: number
   ): Promise<RoomControllerMethodReturn> {
-    return { rooms: [], session: null };
+    return { rooms: [], sessions: [] };
   }
 
   @Patch()
@@ -106,7 +107,7 @@ export class RoomController {
     const session = await this.getUserSessionOrThrow(user);
     const room = await this.roomService.patchOne(dto.toServiceDto(session));
 
-    return { rooms: [room], session };
+    return { rooms: [room] };
   }
 
   @Delete()
@@ -119,7 +120,7 @@ export class RoomController {
 
     const { room, deletedRoomId } = await this.roomService.leave(session);
 
-    return { rooms: _.isNil(room) ? [] : [room], deletedRoomId, session: null };
+    return { rooms: _.isNil(room) ? [] : [room], deletedRoomId };
   }
 
   private async getUserSessionOrThrow(user: User): Promise<Session> {

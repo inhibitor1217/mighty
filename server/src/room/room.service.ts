@@ -46,6 +46,10 @@ export class RoomService {
     @InjectRepository(Session) private sessionRepository: Repository<Session>
   ) {}
 
+  async getSessions(roomId: number): Promise<Session[]> {
+    return this.sessionRepository.find({ where: { roomId } });
+  }
+
   async createAndJoin(dto: CreateRoomServiceDto): Promise<JoinReturn> {
     const { userId, name, maxPlayers, maxObservers } = dto;
 
