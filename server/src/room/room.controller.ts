@@ -83,16 +83,16 @@ export class RoomController {
   @Get('list')
   @UseGuards(JwtAuthGuard)
   async list(
-    @Req() req: AuthenticatedRequest,
     @Query() paginationQuery: PaginationQuery
   ): Promise<RoomControllerMethodReturn> {
-    return { rooms: [] };
+    const rooms = await this.roomService.getMany(paginationQuery);
+
+    return { rooms };
   }
 
   @Get(':roomId')
   @UseGuards(JwtAuthGuard)
   async getOne(
-    @Req() req: AuthenticatedRequest,
     @Param('roomId', ParseIntPipe) roomId: number
   ): Promise<RoomControllerMethodReturn> {
     const room = await this.roomService.getOne(roomId);

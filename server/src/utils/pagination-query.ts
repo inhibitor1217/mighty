@@ -1,4 +1,4 @@
-import { IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
+import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { SortOrder } from './sort-order';
 
 export class PaginationQuery {
@@ -8,8 +8,8 @@ export class PaginationQuery {
   readonly limit: number = 64;
 
   @IsOptional()
-  @IsInt()
-  readonly cursor?: number;
+  @IsString()
+  readonly cursor?: string;
 
   @IsIn(SortOrder.values)
   readonly order: SortOrder = SortOrder.Descending;

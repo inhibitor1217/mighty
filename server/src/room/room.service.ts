@@ -11,6 +11,8 @@ import { Not, QueryRunner, Repository } from 'typeorm';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import type { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
 import { User } from '../user/model/user.model';
+import { PaginationQuery } from '../utils/pagination-query';
+import { SortOrder } from '../utils/sort-order';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
 import { PatchRoomServiceDto } from './dto/patch-room.service.dto';
 import { SessionType } from './entity/session-type';
@@ -60,6 +62,19 @@ export class RoomService {
     }
 
     return room;
+  }
+
+  async getMany(query: PaginationQuery): Promise<Room[]> {
+    const { limit, cursor, order } = query;
+
+    const rooms = await this.roomRepository
+      .createQueryBuilder('room')
+      .where({ createdAt: SortOrder.toComparator(order)(cursor) })
+      .limit(limit)
+      .orderBy('room.createdAt', SortOrder.toOrderBy(order))
+      .getMany();
+
+    return rooms;
   }
 
   async getSessions(roomId: number): Promise<SessionReturn> {

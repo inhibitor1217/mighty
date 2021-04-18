@@ -1,6 +1,7 @@
 /* eslint-disable import/export */
 /* eslint-disable @typescript-eslint/no-redeclare */
 
+import { LessThan, MoreThan } from 'typeorm';
 import { unreachable } from './unreachable';
 
 export enum SortOrder {
@@ -17,6 +18,17 @@ export namespace SortOrder {
         return 'ASC';
       case SortOrder.Descending:
         return 'DESC';
+      default:
+        return unreachable();
+    }
+  }
+
+  export function toComparator(sortOrder: SortOrder) {
+    switch (sortOrder) {
+      case SortOrder.Ascending:
+        return MoreThan;
+      case SortOrder.Descending:
+        return LessThan;
       default:
         return unreachable();
     }
