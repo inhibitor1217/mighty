@@ -20,6 +20,7 @@ import { UserService } from '../user/user.service';
 import { PaginationQuery } from '../utils/pagination-query';
 import { CreateRoomDto } from './dto/create-room.dto';
 import { PatchRoomDto } from './dto/patch-room.dto';
+import { PatchSessionDto } from './dto/patch-session.dto';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
 import { NoSessionException } from './exception/no-session.exception';
 import { Room } from './model/room.model';
@@ -28,7 +29,7 @@ import { RoomExceptionsInterceptor } from './room-exceptions.interceptor';
 import { RoomService } from './room.service';
 
 interface RoomControllerMethodReturn {
-  rooms: Room[];
+  rooms?: Room[];
   deletedRoomId?: number;
   sessions?: Session[];
   users?: User[];
@@ -110,11 +111,25 @@ export class RoomController {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
     const room = await this.roomService.patchOne(dto.toServiceDto(session));
-    const { sessions, users } = await this.roomService.getSessions(
-      session.roomId
+    const { sessions } = await this.roomService.getSessions(session.roomId);
+
+    return { rooms: [room], sessions };
+  }
+
+  @Patch('session')
+  @UseGuards(JwtAuthGuard)
+  async patchSession(
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: PatchSessionDto
+  ): Promise<RoomControllerMethodReturn> {
+    const { user } = req;
+    const session = await this.getUserSessionOrThrow(user);
+    const { room, session: newSession } = await this.roomService.patchSession(
+      session,
+      dto.toServiceDto()
     );
 
-    return { rooms: [room], sessions, users };
+    return { rooms: [room], sessions: [newSession] };
   }
 
   @Delete()

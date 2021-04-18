@@ -15,6 +15,7 @@ import { PaginationQuery } from '../utils/pagination-query';
 import { SortOrder } from '../utils/sort-order';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
 import { PatchRoomServiceDto } from './dto/patch-room.service.dto';
+import { PatchSessionServiceDto } from './dto/patch-session.service.dto';
 import { SessionType } from './entity/session-type';
 import { DuplicateSessionException } from './exception/duplicate-session.exception';
 import { FullRoomException } from './exception/full-room.exception';
@@ -365,18 +366,14 @@ export class RoomService {
               transactionContext
             );
 
-        this.ensureSessionOwnsRoom(room, sessionId);
-        if (!_.isNil(maxPlayers)) {
-          this.ensureMaxPlayerConstraint(room, maxPlayers);
-        }
-        if (!_.isNil(maxObservers)) {
-          this.ensureMaxObserverConstraint(room, maxObservers);
-        }
-
         room.name = name ?? room.name;
         room.maxPlayers = maxPlayers ?? room.maxPlayers;
         room.maxObservers = maxObservers ?? room.maxObservers;
         room.ownerSessionId = newOwnerSession?.id ?? room.ownerSessionId;
+
+        this.ensureSessionOwnsRoom(room, sessionId);
+        this.ensureMaxPlayerConstraint(room);
+        this.ensureMaxObserverConstraint(room);
 
         await roomRepository.save(room);
 
@@ -391,6 +388,90 @@ export class RoomService {
         await queryRunner.release();
       }
     })();
+  }
+
+  async patchSession(
+    session: Session,
+    dto: PatchSessionServiceDto
+  ): Promise<JoinReturn> {
+    const { type: newSessionType } = dto;
+
+    const transactionContext = this.createTransaction();
+    const {
+      queryRunner,
+      roomRepository,
+      sessionRepository,
+    } = transactionContext;
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    return (async () => {
+      try {
+        const room = await this.getRoomAndAcquireLock(
+          session.roomId,
+          transactionContext
+        );
+
+        room.numPlayers += this.getNumPlayersDifference(
+          session.type,
+          newSessionType
+        );
+        room.numObservers += this.getNumObserversDifference(
+          session.type,
+          newSessionType
+        );
+
+        this.ensureMaxPlayerConstraint(room);
+        this.ensureMaxObserverConstraint(room);
+
+        // eslint-disable-next-line no-param-reassign
+        session.type = newSessionType ?? session.type;
+
+        await Promise.all([
+          roomRepository.save(room),
+          sessionRepository.save(session),
+        ]);
+
+        await queryRunner.commitTransaction();
+
+        return { room, session };
+      } catch (e) {
+        await queryRunner.rollbackTransaction();
+
+        throw e;
+      } finally {
+        await queryRunner.release();
+      }
+    })();
+  }
+
+  private getNumPlayersDifference(
+    sessionType: SessionType,
+    newSessionType: SessionType | undefined
+  ): number {
+    if (_.isNil(newSessionType)) {
+      return 0;
+    }
+
+    return (
+      (newSessionType === SessionType.Player ? 1 : 0) +
+      (sessionType === SessionType.Player ? -1 : 0)
+    );
+  }
+
+  private getNumObserversDifference(
+    sessionType: SessionType,
+    newSessionType: SessionType | undefined
+  ): number {
+    if (_.isNil(newSessionType)) {
+      return 0;
+    }
+
+    return (
+      (newSessionType === SessionType.Observer ? 1 : 0) +
+      (sessionType === SessionType.Observer ? -1 : 0)
+    );
   }
 
   private createTransaction(): TransactionContext {
@@ -459,18 +540,18 @@ export class RoomService {
     );
   }
 
-  private ensureMaxPlayerConstraint(room: Room, maxPlayers: number): void {
-    if (room.numPlayers > maxPlayers) {
+  private ensureMaxPlayerConstraint(room: Room): void {
+    if (room.numPlayers > room.maxPlayers) {
       throw new BadRequestException(
-        `Cannot set max players to ${maxPlayers}: room has ${room.numPlayers} players`
+        `Room violates max players constraint: max players is ${room.maxPlayers} and number of players is ${room.numPlayers}`
       );
     }
   }
 
-  private ensureMaxObserverConstraint(room: Room, maxObservers: number): void {
-    if (room.numObservers > maxObservers) {
+  private ensureMaxObserverConstraint(room: Room): void {
+    if (room.numObservers > room.maxObservers) {
       throw new BadRequestException(
-        `Cannot set max observers to ${maxObservers}: room has ${room.numObservers} observers`
+        `Room violates max observers constraint: max observers is ${room.maxObservers} and number of observers is ${room.numObservers}`
       );
     }
   }
