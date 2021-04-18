@@ -31,6 +31,7 @@ interface RoomControllerMethodReturn {
   rooms: Room[];
   deletedRoomId?: number;
   sessions?: Session[];
+  users?: User[];
 }
 
 @Controller('room')
@@ -67,9 +68,9 @@ export class RoomController {
     await this.ensureUserHasNoSessions(user);
 
     const { room } = await this.roomService.join(roomId, user.id);
-    const sessions = await this.roomService.getSessions(roomId);
+    const { sessions, users } = await this.roomService.getSessions(roomId);
 
-    return { rooms: [room], sessions };
+    return { rooms: [room], sessions, users };
   }
 
   private async ensureUserHasNoSessions(user: User): Promise<void> {
@@ -94,7 +95,10 @@ export class RoomController {
     @Req() req: AuthenticatedRequest,
     @Param('roomId', ParseIntPipe) roomId: number
   ): Promise<RoomControllerMethodReturn> {
-    return { rooms: [], sessions: [] };
+    const room = await this.roomService.getOne(roomId);
+    const { sessions, users } = await this.roomService.getSessions(roomId);
+
+    return { rooms: [room], sessions, users };
   }
 
   @Patch()
@@ -106,8 +110,11 @@ export class RoomController {
     const { user } = req;
     const session = await this.getUserSessionOrThrow(user);
     const room = await this.roomService.patchOne(dto.toServiceDto(session));
+    const { sessions, users } = await this.roomService.getSessions(
+      session.roomId
+    );
 
-    return { rooms: [room] };
+    return { rooms: [room], sessions, users };
   }
 
   @Delete()

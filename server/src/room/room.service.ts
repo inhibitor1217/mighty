@@ -10,6 +10,7 @@ import { UNIQUE_VIOLATION } from 'pg-error-constants';
 import { Not, QueryRunner, Repository } from 'typeorm';
 import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import type { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
+import { User } from '../user/model/user.model';
 import { CreateRoomServiceDto } from './dto/create-room.service.dto';
 import { PatchRoomServiceDto } from './dto/patch-room.service.dto';
 import { SessionType } from './entity/session-type';
@@ -31,6 +32,11 @@ interface LeaveReturn {
   deletedRoomId?: number;
 }
 
+interface SessionReturn {
+  sessions: Session[];
+  users: User[];
+}
+
 interface TransactionContext {
   queryRunner: QueryRunner;
   roomRepository: Repository<Room>;
@@ -46,8 +52,24 @@ export class RoomService {
     @InjectRepository(Session) private sessionRepository: Repository<Session>
   ) {}
 
-  async getSessions(roomId: number): Promise<Session[]> {
-    return this.sessionRepository.find({ where: { roomId } });
+  async getOne(roomId: number): Promise<Room> {
+    const room = await this.roomRepository.findOne(roomId);
+
+    if (_.isNil(room)) {
+      this.throwRoomNotFoundException(roomId);
+    }
+
+    return room;
+  }
+
+  async getSessions(roomId: number): Promise<SessionReturn> {
+    const sessions = await this.sessionRepository.find({
+      where: { roomId },
+      relations: ['user', 'user.profile'],
+    });
+    const users = sessions.map(({ user }) => user);
+
+    return { sessions, users };
   }
 
   async createAndJoin(dto: CreateRoomServiceDto): Promise<JoinReturn> {
