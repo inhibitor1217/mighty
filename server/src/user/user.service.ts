@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import _ from 'lodash';
 import { UNIQUE_VIOLATION } from 'pg-error-constants';
@@ -8,6 +8,7 @@ import { RDB_QUERY_RUNNER_PROVIDER } from '../rdb/query-runner/const';
 import { RdbQueryRunnerFactory } from '../rdb/query-runner/rdb-query-runner-factory';
 import { Session } from '../room/model/session.model';
 import { CreateUserServiceDto } from './dto/create-user.service.dto';
+import { PatchUserServiceDto } from './dto/patch-user.service.dto';
 import { UserState } from './entity/user-state';
 import { DuplicateUserProviderIdException } from './exception/duplicate-user-provider-id.exception';
 import { UserProfile } from './model/user-profile.model';
@@ -83,6 +84,51 @@ export class UserService {
             providerId: userDto.providerId,
           });
         }
+
+        throw e;
+      } finally {
+        await queryRunner.release();
+      }
+    })();
+  }
+
+  async patchOne(userId: number, dto: PatchUserServiceDto): Promise<User> {
+    const { state, profile } = dto;
+
+    const queryRunner = this.rdbQueryRunner.create();
+    const userRepository = queryRunner.manager.getRepository(User);
+    const userProfileRepository = queryRunner.manager.getRepository(
+      UserProfile
+    );
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    return (async () => {
+      try {
+        const user = await userRepository.findOne(userId, {
+          join: {
+            alias: 'user',
+            leftJoinAndSelect: { profile: 'user.profile' },
+          },
+        });
+
+        if (_.isNil(user)) {
+          throw new NotFoundException('User not found');
+        }
+
+        user.state = state ?? user.state;
+        user.profile.displayName =
+          profile?.displayName ?? user.profile.displayName;
+
+        await userRepository.save(user);
+        await userProfileRepository.save(user.profile);
+
+        await queryRunner.commitTransaction();
+
+        return user;
+      } catch (e) {
+        await queryRunner.rollbackTransaction();
 
         throw e;
       } finally {

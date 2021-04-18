@@ -264,7 +264,7 @@ export class JwtAuthGuard implements CanActivate {
     );
 
     if (!user.canAuthorize({ allowWaiting })) {
-      throw new ForbiddenException();
+      throw new ForbiddenException('Activation required');
     }
   }
 }
