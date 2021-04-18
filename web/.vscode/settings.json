@@ -1,0 +1,17 @@
+{
+  "editor.formatOnSave": true,
+  "javascript.format.enable": false,
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "eslint.lintTask.enable": true,
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.serverless": true,
+    "**/.webpack": true,
+    "**/build": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "javascript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
