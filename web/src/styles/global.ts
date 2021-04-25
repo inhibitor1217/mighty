@@ -1,11 +1,16 @@
 import { createGlobalStyle } from "styled-components";
 import { normalize } from "styled-normalize";
 
+const typography = `
+  font-family: 'NanumSquare', Roboto, Arial, sans-serif;
+`;
+
 export const GlobalStyle = createGlobalStyle`
   ${normalize}
 
   html,
   body {
+    ${typography}
     overflow: hidden;
     font-size: 16px;
     font-weight: 400;
@@ -30,6 +35,7 @@ export const GlobalStyle = createGlobalStyle`
   optgroup,
   select,
   textarea {
+    ${typography}
     font-size: 16px;
     font-weight: 400;
   }
@@ -42,6 +48,7 @@ export const GlobalStyle = createGlobalStyle`
   h6,
   span,
   p {
+    ${typography}
     margin: 0;
   }
   h1 {
