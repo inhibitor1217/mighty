@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-import { IconSize } from "./icon.types";
+import { IconSize } from "./Icon.type";
 
 export interface IconProps {
   name: string;
