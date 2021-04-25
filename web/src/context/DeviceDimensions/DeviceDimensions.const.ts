@@ -1,0 +1,1 @@
+export const RESIZE_HANDLER_THROTTLE_MS = 200;
