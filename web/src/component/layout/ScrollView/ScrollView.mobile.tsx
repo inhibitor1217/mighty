@@ -1,10 +1,14 @@
 import Styled from "./ScrollView.mobile.styled";
 import type ScrollViewProps from "./ScrollView.type";
 
-const ScrollView = ({ children, ...props }: ScrollViewProps) => {
+const ScrollView = ({
+  center = false,
+  children,
+  ...props
+}: ScrollViewProps) => {
   return (
     <Styled.ScrollContainer {...props}>
-      <Styled.ScrollContent>{children}</Styled.ScrollContent>
+      <Styled.ScrollContent center={center}>{children}</Styled.ScrollContent>
     </Styled.ScrollContainer>
   );
 };

@@ -3,7 +3,11 @@ import useResponsive from "../../../hook/useResponsive";
 import Styled from "./ScrollView.desk.styled";
 import type ScrollViewProps from "./ScrollView.type";
 
-const ScrollView = ({ children, ...props }: ScrollViewProps) => {
+const ScrollView = ({
+  center = false,
+  children,
+  ...props
+}: ScrollViewProps) => {
   const ResponsiveContent = useResponsive<ScrollViewProps>(
     Styled.ScrollContent,
     {
@@ -22,7 +26,7 @@ const ScrollView = ({ children, ...props }: ScrollViewProps) => {
 
   return (
     <Styled.ScrollContainer {...props}>
-      <ResponsiveContent>{children}</ResponsiveContent>
+      <ResponsiveContent center={center}>{children}</ResponsiveContent>
     </Styled.ScrollContainer>
   );
 };
