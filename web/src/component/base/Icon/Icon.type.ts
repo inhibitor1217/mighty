@@ -4,3 +4,8 @@ export enum IconSize {
   M,
   L,
 }
+
+export interface IconProps {
+  name: string;
+  iconSize?: IconSize;
+}

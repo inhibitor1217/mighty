@@ -1,11 +1,10 @@
 import React from "react";
 import DeviceDimensionsProvider from "../context/DeviceDimensions/DeviceDimensions.provider";
-import Icon from "./base/Icon/Icon";
 
 const App = () => {
   return (
     <DeviceDimensionsProvider>
-      <Icon name="face" />
+      <div>Hello, world!</div>
     </DeviceDimensionsProvider>
   );
 };
