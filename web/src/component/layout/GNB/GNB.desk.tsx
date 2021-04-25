@@ -1,4 +1,3 @@
-import React from "react";
 import { BISize } from "../../base/BI/BI.type";
 import Styled from "./GNB.desk.styled";
 import type GNBProps from "./GNB.type";

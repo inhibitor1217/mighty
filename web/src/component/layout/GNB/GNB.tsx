@@ -4,9 +4,7 @@ import MobileGNB from "./GNB.mobile";
 import type GNBProps from "./GNB.type";
 
 const GNB = (props: GNBProps) => {
-  const Responsive = useResponsive<GNBProps>(DeskGNB, {
-    Mobile: MobileGNB,
-  });
+  const Responsive = useResponsive<GNBProps>(DeskGNB, { Mobile: MobileGNB });
 
   return <Responsive {...props} />;
 };

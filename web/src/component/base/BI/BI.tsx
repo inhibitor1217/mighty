@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import { cloneElement, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ROOT_PATH } from "../../../const/path";
 import { ReactComponent as BICompactWhiteSvg } from "./res/bi-compact-white.svg";
@@ -44,7 +44,7 @@ const BI = ({
     );
   }
 
-  return React.cloneElement(element, { className });
+  return cloneElement(element, { className });
 };
 
 export default BI;
