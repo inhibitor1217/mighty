@@ -18,44 +18,44 @@ function matchQueryFn(width: number): (mediaQuery: MediaQuery) => boolean {
   };
 }
 
-interface MediaQueryElement {
-  element: React.ReactElement;
+interface MediaQueryComponent<P> {
+  Component: React.ComponentType<P>;
   query: MediaQuery;
 }
 
-const useResponsive = (
-  baseElement: React.ReactElement,
-  responsiveElements?: {
-    mobile?: React.ReactElement;
-    tablet?: React.ReactElement;
-    mediaQueries?: MediaQueryElement[];
+const useResponsive = <P>(
+  BaseComponent: React.ComponentType<P>,
+  responsiveComponents?: {
+    Mobile?: React.ComponentType<P>;
+    Tablet?: React.ComponentType<P>;
+    mediaQueries?: MediaQueryComponent<P>[];
   }
-): React.ReactElement => {
+) => {
   const { width: deviceWidth } = useContext(DeviceDimensionsContext);
-  const { mobile, tablet, mediaQueries } = responsiveElements ?? {};
+  const { Mobile, Tablet, mediaQueries } = responsiveComponents ?? {};
 
   const matchQuery = useMemo(() => matchQueryFn(deviceWidth), [deviceWidth]);
-  const mediaQueryMatchedElement = useMemo(
+  const MediaQueryMatchedComponent = useMemo(
     () =>
       _.isNil(mediaQueries)
         ? null
-        : mediaQueries.find(({ query }) => matchQuery(query))?.element,
+        : mediaQueries.find(({ query }) => matchQuery(query))?.Component,
     [matchQuery, mediaQueries]
   );
 
-  if (!_.isNil(mediaQueryMatchedElement)) {
-    return mediaQueryMatchedElement;
+  if (!_.isNil(MediaQueryMatchedComponent)) {
+    return MediaQueryMatchedComponent;
   }
 
-  if (isTablet && !_.isNil(tablet)) {
-    return tablet;
+  if (isTablet && !_.isNil(Tablet)) {
+    return Tablet;
   }
 
-  if (isMobile && !_.isNil(mobile)) {
-    return mobile;
+  if (isMobile && !_.isNil(Mobile)) {
+    return Mobile;
   }
 
-  return baseElement;
+  return BaseComponent;
 };
 
 export default useResponsive;

@@ -1,10 +1,14 @@
 import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 import DeviceDimensionsProvider from "../context/DeviceDimensions/DeviceDimensions.provider";
+import GNB from "./layout/GNB";
 
 const App = () => {
   return (
     <DeviceDimensionsProvider>
-      <div>Hello, world!</div>
+      <Router>
+        <GNB />
+      </Router>
     </DeviceDimensionsProvider>
   );
 };

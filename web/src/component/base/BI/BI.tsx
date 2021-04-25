@@ -11,6 +11,7 @@ import {
 import { BIProps, BIShape, BISize } from "./BI.type";
 
 const BI = ({
+  className,
   shape = BIShape.Default,
   size = BISize.S,
   link = true,
@@ -36,10 +37,14 @@ const BI = ({
   }, [shape, size]);
 
   if (link) {
-    return <Link to={linkTo}>{element}</Link>;
+    return (
+      <Link className={className} to={linkTo}>
+        {element}
+      </Link>
+    );
   }
 
-  return element;
+  return React.cloneElement(element, { className });
 };
 
 export default BI;

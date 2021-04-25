@@ -20,6 +20,9 @@ export const GlobalStyle = createGlobalStyle`
   }
   * {
     box-sizing: border-box;
+
+    /* Adjust highlight color on mobile tap */
+    -webkit-tap-highlight-color:  rgba(255, 255, 255, 0.1); 
   }
 
   button,
