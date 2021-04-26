@@ -11,7 +11,7 @@ const ScrollContainer = styled.div`
   overflow-x: hidden;
   overflow-y: auto;
 
-  ${flexbox("column", "start")}
+  ${flexbox("column", "flex-start")}
 `;
 
 const ScrollContent = styled.main<StyledScrollContentProps>`
@@ -19,7 +19,8 @@ const ScrollContent = styled.main<StyledScrollContentProps>`
   margin: auto 0;
   padding: 16px;
 
-  ${({ center }) => flexbox("column", "start", center ? "center" : "start")}
+  ${({ center }) =>
+    flexbox("column", "flex-start", center ? "center" : "flex-start")}
 `;
 
 const Styled = {

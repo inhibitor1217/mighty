@@ -2,8 +2,8 @@ import { css } from "styled-components";
 
 function flexbox(
   direction: "row" | "column",
-  justifyContent: "start" | "end" | "center" = "center",
-  alignItems: "start" | "end" | "center" = "center"
+  justifyContent: "flex-start" | "flex-end" | "center" = "center",
+  alignItems: "flex-start" | "flex-end" | "center" = "center"
 ) {
   return css`
     display: flex;

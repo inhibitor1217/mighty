@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import Icon, { IconSize } from "../../base/Icon";
+import Divider from "../../common/Divider";
 import Styled from "./NotFound.styled";
 import type NotFoundProps from "./NotFound.type";
 
@@ -14,16 +15,7 @@ const NotFound = ({ className, secondsUntilRedirect }: NotFoundProps) => {
     []
   );
 
-  const dividerElement = useMemo(
-    () => (
-      <Styled.DividerWrapper>
-        <Styled.Divider />
-        <Styled.DividerCenterCircle />
-        <Styled.Divider />
-      </Styled.DividerWrapper>
-    ),
-    []
-  );
+  const dividerElement = useMemo(() => <Divider />, []);
 
   return (
     <Styled.Wrapper className={className}>

@@ -12,9 +12,15 @@ export enum BISize {
   L,
 }
 
+export enum BIColor {
+  White = "white",
+  Black = "black",
+}
+
 export interface BIProps extends StyledComponentProps {
   shape?: BIShape;
   size?: BISize;
+  color?: BIColor;
   link?: boolean;
   linkTo?: string;
 }

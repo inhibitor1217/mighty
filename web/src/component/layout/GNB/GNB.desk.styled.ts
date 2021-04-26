@@ -20,7 +20,7 @@ const Wrapper = styled.nav`
   z-index: ${GNB_Z_INDEX};
   background-color: ${DefaultPalette["bg-black-darkest"]};
 
-  ${flexbox("row", "start")}
+  ${flexbox("row", "flex-start")}
 `;
 
 const Styled = {
