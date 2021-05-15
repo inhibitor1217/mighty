@@ -1,9 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useCountdown = (
-  timeoutSeconds: number,
-  onTimeout?: () => void
-): [number] => {
+const useCountdown = (timeoutSeconds: number, onTimeout?: () => void): [number] => {
   const [seconds, setSeconds] = useState(timeoutSeconds);
 
   useEffect(
