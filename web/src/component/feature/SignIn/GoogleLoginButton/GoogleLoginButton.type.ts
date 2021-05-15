@@ -1,4 +1,4 @@
-import StyledComponentProps from "../../../../type/StyledComponent";
+import type StyledComponentProps from "type/StyledComponent";
 
 interface GoogleLoginButtonProps extends StyledComponentProps {}
 

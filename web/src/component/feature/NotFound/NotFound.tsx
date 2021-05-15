@@ -1,6 +1,8 @@
 import { useMemo } from "react";
-import Icon, { IconSize } from "../../base/Icon";
-import Divider from "../../common/Divider";
+
+import Icon, { IconSize } from "component/base/Icon";
+import Divider from "component/common/Divider";
+
 import Styled from "./NotFound.styled";
 import type NotFoundProps from "./NotFound.type";
 

@@ -1,6 +1,7 @@
 import { SIMPLE_SPINNER_SIZES } from "./SimpleSpinner.const";
 import Styled from "./SimpleSpinner.styled";
-import SimpleSpinnerProps, { SimpleSpinnerSize } from "./SimpleSpinner.type";
+import { SimpleSpinnerSize } from "./SimpleSpinner.type";
+import type SimpleSpinnerProps from "./SimpleSpinner.type";
 
 const SimpleSpinner = ({
   className,

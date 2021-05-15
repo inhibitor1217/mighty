@@ -1,4 +1,5 @@
 import styled, { keyframes } from "styled-components";
+
 import type SimpleSpinnerProps from "./SimpleSpinner.type";
 
 const RotateKeyframes = keyframes`

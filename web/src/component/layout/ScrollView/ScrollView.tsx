@@ -1,4 +1,5 @@
-import useResponsive from "../../../hook/useResponsive";
+import useResponsive from "hook/useResponsive";
+
 import DeskScrollView from "./ScrollView.desk";
 import MobileScrollView from "./ScrollView.mobile";
 import ScrollViewProps from "./ScrollView.type";

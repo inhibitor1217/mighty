@@ -1,6 +1,7 @@
 import styled from "styled-components";
-import flexbox from "../../../styles/flexbox";
-import { DefaultPalette } from "../../../styles/palette/Palette";
+
+import flexbox from "styles/flexbox";
+import { DefaultPalette } from "styles/palette";
 
 const Line = styled.div`
   flex: 1;
@@ -13,7 +14,7 @@ const CenterCircle = styled.div`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color ${DefaultPalette["bdr-white-normal"]};
+  background-color: ${DefaultPalette["bdr-white-normal"]};
 `;
 
 const Wrapper = styled.div`

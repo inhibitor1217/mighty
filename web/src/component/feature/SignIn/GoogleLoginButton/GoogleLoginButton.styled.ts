@@ -1,6 +1,7 @@
 import styled from "styled-components";
-import { RESOURCE_IMAGE_PATH } from "../../../../const/path";
-import clickable from "../../../../styles/clickable";
+
+import { RESOURCE_IMAGE_PATH } from "const/path";
+import clickable from "styles/clickable";
 
 const IMAGE_FILE = "/btn_google_signin_dark_normal_web@2x.png";
 

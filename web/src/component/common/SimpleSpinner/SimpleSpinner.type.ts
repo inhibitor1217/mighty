@@ -1,4 +1,4 @@
-import type StyledComponentProps from "../../../type/StyledComponent";
+import type StyledComponentProps from "type/StyledComponent";
 
 export enum SimpleSpinnerSize {
   XS,

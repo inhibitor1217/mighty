@@ -1,4 +1,5 @@
-import useResponsive from "../../../hook/useResponsive";
+import useResponsive from "hook/useResponsive";
+
 import DeskSignIn from "./SignIn.desk";
 import MobileSignIn from "./SignIn.mobile";
 import type SignInProps from "./SignIn.type";

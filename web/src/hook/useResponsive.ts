@@ -1,7 +1,8 @@
 import { useContext, useMemo } from "react";
 import { isMobile, isTablet } from "react-device-detect";
 import _ from "lodash";
-import { DeviceDimensionsContext } from "../context/DeviceDimensions";
+
+import { DeviceDimensionsContext } from "context/DeviceDimensions";
 
 interface MediaQuery {
   minWidth?: number;

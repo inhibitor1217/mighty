@@ -1,5 +1,6 @@
 import _ from "lodash";
-import InvalidEnvironmentException from "../util/exception/InvalidEnvironment.exception";
+
+import InvalidEnvironmentException from "util/exception/InvalidEnvironment.exception";
 
 function env(name: string): string {
   const nameWithPrefix = `REACT_APP_${name}`;

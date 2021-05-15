@@ -1,4 +1,5 @@
-import { BIShape, BISize } from "../../base/BI/BI.type";
+import { BIShape, BISize } from "component/base/BI";
+
 import Styled from "./GNB.mobile.styled";
 import type GNBProps from "./GNB.type";
 

@@ -1,13 +1,16 @@
 import { cloneElement, ComponentType, SVGProps, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ROOT_PATH } from "../../../const/path";
-import unreachable from "../../../util/unreachable";
+
+import { ROOT_PATH } from "const/path";
+import unreachable from "util/unreachable";
+
+import { BI_COMPACT_ASPECT_RATIO, BI_DEFAULT_ASPECT_RATIO, BI_HEIGHTS } from "./BI.const";
+import { BIColor, BIShape, BISize } from "./BI.type";
+import type BIProps from "./BI.type";
 import { ReactComponent as BICompactBlackSvg } from "./res/bi-compact-black.svg";
 import { ReactComponent as BIBlackSvg } from "./res/bi-black.svg";
 import { ReactComponent as BICompactWhiteSvg } from "./res/bi-compact-white.svg";
 import { ReactComponent as BIWhiteSvg } from "./res/bi-white.svg";
-import { BI_COMPACT_ASPECT_RATIO, BI_DEFAULT_ASPECT_RATIO, BI_HEIGHTS } from "./BI.const";
-import BIProps, { BIColor, BIShape, BISize } from "./BI.type";
 
 const SVG_COMPONENTS: {
   [shapeKey in BIShape]: {

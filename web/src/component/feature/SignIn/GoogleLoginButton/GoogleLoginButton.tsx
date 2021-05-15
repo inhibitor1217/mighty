@@ -1,6 +1,7 @@
-import { googleOauthSignIn } from "../../../../api/auth/OAuth";
+import { googleOauthSignIn } from "api/auth/OAuth";
+
 import Styled from "./GoogleLoginButton.styled";
-import GoogleLoginButtonProps from "./GoogleLoginButton.type";
+import type GoogleLoginButtonProps from "./GoogleLoginButton.type";
 
 const GoogleLoginButton = ({ className }: GoogleLoginButtonProps) => {
   return (

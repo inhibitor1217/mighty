@@ -1,8 +1,10 @@
 import styled from "styled-components";
-import flexbox from "../../../styles/flexbox";
-import { DefaultPalette } from "../../../styles/palette/Palette";
-import { GNB_Z_INDEX } from "../../../styles/zIndex";
-import BaseBI from "../../base/BI";
+
+import BaseBI from "component/base/BI";
+import flexbox from "styles/flexbox";
+import { DefaultPalette } from "styles/palette";
+import { GNB_Z_INDEX } from "styles/zIndex";
+
 import { GNB_MOBILE_HEIGHT } from "./GNB.const";
 
 const BI = styled(BaseBI)`

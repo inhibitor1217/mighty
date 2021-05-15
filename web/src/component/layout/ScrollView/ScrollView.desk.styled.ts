@@ -1,11 +1,9 @@
 import styled, { css } from "styled-components";
-import {
-  DESK_CONTENT_WIDTH,
-  SHALLOW_CONTENT_WIDTH,
-  WIDE_CONTENT_WIDTH,
-} from "../../../const/layout";
-import flexbox from "../../../styles/flexbox";
-import { GNB_DESKTOP_HEIGHT } from "../GNB/GNB.const";
+
+import { DESK_CONTENT_WIDTH, SHALLOW_CONTENT_WIDTH, WIDE_CONTENT_WIDTH } from "const/layout";
+import { GNB_DESKTOP_HEIGHT } from "component/layout/GNB";
+import flexbox from "styles/flexbox";
+
 import type { StyledScrollContentProps } from "./ScrollView.type";
 
 const ScrollContainer = styled.div`
@@ -24,8 +22,7 @@ const baseContentStyle = css<StyledScrollContentProps>`
   margin: auto 0;
   padding: 32px 16px;
 
-  ${({ center }) =>
-    flexbox("column", "flex-start", center ? "center" : "flex-start")}
+  ${({ center }) => flexbox("column", "flex-start", center ? "center" : "flex-start")}
 `;
 
 const ScrollContent = styled.main<StyledScrollContentProps>`

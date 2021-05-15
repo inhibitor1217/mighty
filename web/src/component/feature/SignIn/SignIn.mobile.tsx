@@ -1,5 +1,6 @@
-import BI, { BIColor, BISize } from "../../base/BI";
-import Divider from "../../common/Divider";
+import BI, { BIColor, BISize } from "component/base/BI";
+import Divider from "component/common/Divider";
+
 import GoogleLoginButton from "./GoogleLoginButton";
 import { ReactComponent as CardSvg } from "./res/card-sign-in.svg";
 import { MOBILE_SIGN_IN_CARD_SIZE } from "./SignIn.const";

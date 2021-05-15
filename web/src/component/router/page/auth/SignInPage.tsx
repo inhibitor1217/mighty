@@ -1,5 +1,5 @@
-import SignIn from "../../../feature/SignIn";
-import ScrollView from "../../../layout/ScrollView";
+import SignIn from "component/feature/SignIn";
+import ScrollView from "component/layout/ScrollView";
 
 const SignInPage = () => {
   return (

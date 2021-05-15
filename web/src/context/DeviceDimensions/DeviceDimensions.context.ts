@@ -1,4 +1,5 @@
 import { createContext } from "react";
+
 import type DeviceDimensions from "./DeviceDimensions.type";
 
 const initialValue: DeviceDimensions = {

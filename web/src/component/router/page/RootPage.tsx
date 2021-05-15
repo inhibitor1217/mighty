@@ -1,4 +1,4 @@
-import ScrollView from "../../layout/ScrollView";
+import ScrollView from "component/layout/ScrollView";
 
 const RootPage = () => {
   return (

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import _ from "lodash";
+
 import { RESIZE_HANDLER_THROTTLE_MS } from "./DeviceDimensions.const";
 import DeviceDimensionsContext from "./DeviceDimensions.context";
 import type DeviceDimensions from "./DeviceDimensions.type";

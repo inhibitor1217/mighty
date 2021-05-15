@@ -1,6 +1,7 @@
 import styled from "styled-components";
-import flexbox from "../../../styles/flexbox";
-import { DefaultPalette } from "../../../styles/palette/Palette";
+
+import flexbox from "styles/flexbox";
+import { DefaultPalette } from "styles/palette";
 
 const Title = styled.div`
   ${flexbox("row", "flex-start")}

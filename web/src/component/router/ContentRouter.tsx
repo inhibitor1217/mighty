@@ -1,8 +1,10 @@
 import { lazy, Suspense, useMemo } from "react";
 import { Redirect, Route, Switch } from "react-router";
-import { AUTH_PATH, NOT_FOUND_PATH, ROOT_PATH } from "../../const/path";
-import ContentSpinner from "../common/ContentSpinner";
-import ScrollView from "../layout/ScrollView";
+
+import { AUTH_PATH, NOT_FOUND_PATH, ROOT_PATH } from "const/path";
+import ContentSpinner from "component/common/ContentSpinner";
+import ScrollView from "component/layout/ScrollView";
+
 import NotFoundPage from "./page/NotFoundPage";
 
 const RootPage = lazy(() => import("./page/RootPage"));

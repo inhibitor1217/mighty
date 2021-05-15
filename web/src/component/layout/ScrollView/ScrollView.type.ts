@@ -1,5 +1,6 @@
 import React from "react";
-import StyledComponentProps from "../../../type/StyledComponent";
+
+import type StyledComponentProps from "type/StyledComponent";
 
 export interface StyledScrollContentProps {
   center: boolean;

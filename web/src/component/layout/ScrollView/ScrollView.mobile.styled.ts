@@ -1,6 +1,8 @@
 import styled from "styled-components";
-import flexbox from "../../../styles/flexbox";
-import { GNB_MOBILE_HEIGHT } from "../GNB/GNB.const";
+
+import flexbox from "styles/flexbox";
+import { GNB_MOBILE_HEIGHT } from "component/layout/GNB";
+
 import type { StyledScrollContentProps } from "./ScrollView.type";
 
 const ScrollContainer = styled.div`
@@ -19,8 +21,7 @@ const ScrollContent = styled.main<StyledScrollContentProps>`
   margin: auto 0;
   padding: 16px;
 
-  ${({ center }) =>
-    flexbox("column", "flex-start", center ? "center" : "flex-start")}
+  ${({ center }) => flexbox("column", "flex-start", center ? "center" : "flex-start")}
 `;
 
 const Styled = {

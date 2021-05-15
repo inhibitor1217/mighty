@@ -1,5 +1,5 @@
-import type { StyledFadeProps } from "../../../styles/fade";
-import type StyledComponentProps from "../../../type/StyledComponent";
+import type { StyledFadeProps } from "styles/fade";
+import type StyledComponentProps from "type/StyledComponent";
 
 export interface StyledWrapperProps extends StyledFadeProps {}
 

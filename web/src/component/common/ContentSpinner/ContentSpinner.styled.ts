@@ -1,10 +1,12 @@
 import styled from "styled-components";
-import flexbox from "../../../styles/flexbox";
-import BaseSimpleSpinner from "../SimpleSpinner";
+
+import BaseSimpleSpinner from "component/common/SimpleSpinner";
+import fadeStyle from "styles/fade";
+import flexbox from "styles/flexbox";
+
 import { ReactComponent as BaseCardSpinner } from "./res/card-spinner.svg";
 import { CARD_SPINNER_DESK_SIZE } from "./ContentSpinner.const";
 import type { StyledWrapperProps } from "./ContentSpinner.type";
-import fadeStyle from "../../../styles/fade";
 
 const CardSpinner = styled(BaseCardSpinner)`
   margin: auto;

@@ -1,4 +1,5 @@
-import { BISize } from "../../base/BI/BI.type";
+import { BISize } from "component/base/BI";
+
 import Styled from "./GNB.desk.styled";
 import type GNBProps from "./GNB.type";
 

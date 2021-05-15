@@ -1,7 +1,8 @@
 import { BrowserRouter as Router } from "react-router-dom";
-import { DeviceDimensionsProvider } from "../context/DeviceDimensions";
-import GNB from "./layout/GNB";
-import { ContentRouter } from "./router";
+
+import GNB from "component/layout/GNB";
+import { ContentRouter } from "component/router";
+import { DeviceDimensionsProvider } from "context/DeviceDimensions";
 
 const App = () => {
   return (

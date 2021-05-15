@@ -1,9 +1,10 @@
 import { useCallback } from "react";
 import { useHistory } from "react-router";
-import { ROOT_PATH } from "../../../const/path";
-import useCountdown from "../../../hook/useCountdown";
-import NotFound from "../../feature/NotFound";
-import ScrollView from "../../layout/ScrollView";
+
+import { ROOT_PATH } from "const/path";
+import NotFound from "component/feature/NotFound";
+import ScrollView from "component/layout/ScrollView";
+import useCountdown from "hook/useCountdown";
 
 const REDIRECT_TIMEOUT_SECONDS = 5;
 

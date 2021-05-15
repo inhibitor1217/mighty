@@ -1,5 +1,7 @@
 import classNames from "classnames";
-import IconProps, { IconSize } from "./Icon.type";
+
+import { IconSize } from "./Icon.type";
+import type IconProps from "./Icon.type";
 
 const Icon = ({ name, iconSize = IconSize.S }: IconProps) => {
   return (
