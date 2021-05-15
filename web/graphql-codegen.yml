@@ -1,0 +1,15 @@
+schema: "src/**/*.graphql"
+generates:
+  ./src/type/graphql.ts:
+    plugins:
+      - typescript
+    config:
+      avoidOptionals: true
+      immutableTypes: true
+      scalars:
+        DateTime: Date
+  ./src/api/graphql/introspection.json:
+    plugins:
+      - introspection
+    config:
+      - minify: true

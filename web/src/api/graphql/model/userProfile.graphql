@@ -1,0 +1,9 @@
+type UserProfile {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  displayName: String!
+  username: String
+  email: String
+  photo: String
+}

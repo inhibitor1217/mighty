@@ -1,13 +1,29 @@
-import { ApolloClient, InMemoryCache } from "@apollo/client";
+import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
 import { RestLink } from "apollo-link-rest";
+import { withScalars } from "apollo-link-scalars";
+import { buildClientSchema } from "graphql";
+import type { IntrospectionQuery } from "graphql";
+import { DateTimeResolver } from "graphql-scalars";
 
 import { apiServerHost } from "const/env";
+import { __UNSAFE__cast } from "util/cast";
 
-const restLink = new RestLink({ uri: apiServerHost() });
+import introspection from "./graphql/introspection.json";
+
+const schema = buildClientSchema(__UNSAFE__cast<IntrospectionQuery>(introspection));
+
+const typesMap = {
+  DateTime: DateTimeResolver,
+};
+
+const link = ApolloLink.from([
+  withScalars({ schema, typesMap, validateEnums: true }),
+  new RestLink({ uri: apiServerHost() }),
+]);
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),
-  link: restLink,
+  link,
 });
 
 export default client;

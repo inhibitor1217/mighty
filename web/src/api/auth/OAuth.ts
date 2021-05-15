@@ -1,3 +1,8 @@
-import { basePath } from "./const";
+import { apiServerHost } from "const/env";
 
-export const googleOauthSignIn = `${basePath}/google`;
+import { modulePath } from "./const";
+
+export const googleOAuthSignIn = `${modulePath}/google`;
+export const googleOAuthSignInFullPath = `${apiServerHost()}${googleOAuthSignIn}`;
+
+export const googleOAuthRedirect = `${modulePath}/google/redirect`;

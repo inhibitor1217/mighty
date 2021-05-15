@@ -1,0 +1,10 @@
+type User {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  provider: AuthProvider!
+  providerId: String!
+  state: UserState!
+  userProfileId: ID!
+  profile: UserProfile!
+}

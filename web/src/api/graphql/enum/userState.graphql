@@ -1,0 +1,6 @@
+enum UserState {
+  Active
+  Banned
+  Deleted
+  WaitingForActivation
+}

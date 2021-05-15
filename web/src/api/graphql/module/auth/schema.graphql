@@ -1,0 +1,7 @@
+type GoogleOAuthRedirect {
+  users: [User!]!
+}
+
+type GoogleOAuthRedirectQuery {
+  body(params: String!): GoogleOAuthRedirect!
+}
