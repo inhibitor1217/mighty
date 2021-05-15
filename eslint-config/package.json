@@ -1,6 +1,6 @@
 {
   "name": "@inhibitor1217/mighty-eslint-config",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A eslint configuration module for mighty",
   "main": "index.js",
   "repository": "https://github.com/inhibitor1217/mighty",

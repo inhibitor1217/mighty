@@ -19,6 +19,13 @@ module.exports = {
     'eslint-plugin-react',
     'eslint-plugin-react-hooks',
   ],
+  rules: {
+    'arrow-body-style': 'off',
+    'prefer-arrow-callback': ['error', { allowNamedFunctions: true }],
+    'import/prefer-default-export': 'off',
+    'react/jsx-props-no-spreading': 'off',
+    'react/react-in-jsx-scope': 'off',
+  },
   settings: {
     'import/resolver': {
       node: {
