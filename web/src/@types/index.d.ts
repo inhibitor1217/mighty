@@ -5,8 +5,5 @@ type JsonMap = {
 type JsonArray = Array<AnyJson>;
 
 interface JSON {
-  parse(
-    text: string,
-    reviver?: ((this: any, key: string, value: any) => any) | undefined
-  ): AnyJson;
+  parse(text: string, reviver?: ((this: any, key: string, value: any) => any) | undefined): AnyJson;
 }

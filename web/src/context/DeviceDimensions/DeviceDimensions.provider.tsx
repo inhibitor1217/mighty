@@ -16,12 +16,8 @@ interface DeviceDimensionsProviderProps {
   children: React.ReactNode;
 }
 
-const DeviceDimensionsProvider = ({
-  children,
-}: DeviceDimensionsProviderProps) => {
-  const [dimensions, setDimensions] = useState<DeviceDimensions>(
-    getDeviceDimensions()
-  );
+const DeviceDimensionsProvider = ({ children }: DeviceDimensionsProviderProps) => {
+  const [dimensions, setDimensions] = useState<DeviceDimensions>(getDeviceDimensions());
 
   useEffect(function attachResizeHandler() {
     const updateDimensions = _.throttle(

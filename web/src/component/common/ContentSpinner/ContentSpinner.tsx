@@ -1,8 +1,5 @@
 import useFadeIn from "../../../hook/useFadeIn";
-import {
-  CARD_SPINNER_DESK_SIZE,
-  CARD_SPINNER_INNER_CARD_SIZE,
-} from "./ContentSpinner.const";
+import { CARD_SPINNER_DESK_SIZE, CARD_SPINNER_INNER_CARD_SIZE } from "./ContentSpinner.const";
 import type ContentSpinnerProps from "./ContentSpinner.type";
 import Styled from "./ContentSpinner.styled";
 

@@ -1,20 +1,17 @@
 import { cloneElement, ComponentType, SVGProps, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { ROOT_PATH } from "../../../const/path";
+import unreachable from "../../../util/unreachable";
 import { ReactComponent as BICompactBlackSvg } from "./res/bi-compact-black.svg";
 import { ReactComponent as BIBlackSvg } from "./res/bi-black.svg";
 import { ReactComponent as BICompactWhiteSvg } from "./res/bi-compact-white.svg";
 import { ReactComponent as BIWhiteSvg } from "./res/bi-white.svg";
-import {
-  BI_COMPACT_ASPECT_RATIO,
-  BI_DEFAULT_ASPECT_RATIO,
-  BI_HEIGHTS,
-} from "./BI.const";
-import { BIColor, BIProps, BIShape, BISize } from "./BI.type";
+import { BI_COMPACT_ASPECT_RATIO, BI_DEFAULT_ASPECT_RATIO, BI_HEIGHTS } from "./BI.const";
+import BIProps, { BIColor, BIShape, BISize } from "./BI.type";
 
 const SVG_COMPONENTS: {
-  [key in BIShape]: {
-    [key in BIColor]: ComponentType<SVGProps<SVGSVGElement>>;
+  [shapeKey in BIShape]: {
+    [colorKey in BIColor]: ComponentType<SVGProps<SVGSVGElement>>;
   };
 } = {
   [BIShape.Default]: {
@@ -40,21 +37,17 @@ const BI = ({
       case BIShape.Default: {
         const Component = SVG_COMPONENTS[shape][color];
         return (
-          <Component
-            width={BI_HEIGHTS[size] * BI_DEFAULT_ASPECT_RATIO}
-            height={BI_HEIGHTS[size]}
-          />
+          <Component width={BI_HEIGHTS[size] * BI_DEFAULT_ASPECT_RATIO} height={BI_HEIGHTS[size]} />
         );
       }
       case BIShape.Compact: {
         const Component = SVG_COMPONENTS[shape][color];
         return (
-          <Component
-            width={BI_HEIGHTS[size] * BI_COMPACT_ASPECT_RATIO}
-            height={BI_HEIGHTS[size]}
-          />
+          <Component width={BI_HEIGHTS[size] * BI_COMPACT_ASPECT_RATIO} height={BI_HEIGHTS[size]} />
         );
       }
+      default:
+        return unreachable();
     }
   }, [color, shape, size]);
 

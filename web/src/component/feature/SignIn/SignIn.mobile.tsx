@@ -16,10 +16,7 @@ const SignIn = ({ className }: SignInProps) => {
       <Styled.Subtitle>
         <span>로그인 후 게임을 시작하세요.</span>
       </Styled.Subtitle>
-      <CardSvg
-        width={MOBILE_SIGN_IN_CARD_SIZE}
-        height={MOBILE_SIGN_IN_CARD_SIZE}
-      />
+      <CardSvg width={MOBILE_SIGN_IN_CARD_SIZE} height={MOBILE_SIGN_IN_CARD_SIZE} />
       <Divider />
       <Styled.LoginButtonWrapper>
         <GoogleLoginButton />

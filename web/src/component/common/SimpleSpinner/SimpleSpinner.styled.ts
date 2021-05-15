@@ -48,8 +48,7 @@ const SpinnerCircle = styled.circle`
   stroke-dashoffset: 0;
   stroke-linecap: round;
 
-  animation: ${DashKeyframes} 1.5s ease-in-out infinite,
-    ${StrokeKeyframes} 3s ease-in-out infinite;
+  animation: ${DashKeyframes} 1.5s ease-in-out infinite, ${StrokeKeyframes} 3s ease-in-out infinite;
 `;
 
 const Styled = {

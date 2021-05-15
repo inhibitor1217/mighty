@@ -10,18 +10,8 @@ const SimpleSpinner = ({
   const pixelSize = givenPixelSize ?? SIMPLE_SPINNER_SIZES[size];
 
   return (
-    <Styled.SpinnerSvg
-      className={className}
-      size={pixelSize}
-      viewBox="25 25 50 50"
-    >
-      <Styled.SpinnerCircle
-        cx="50"
-        cy="50"
-        r="20"
-        fill="none"
-        strokeMiterlimit="10"
-      />
+    <Styled.SpinnerSvg className={className} size={pixelSize} viewBox="25 25 50 50">
+      <Styled.SpinnerCircle cx="50" cy="50" r="20" fill="none" strokeMiterlimit="10" />
     </Styled.SpinnerSvg>
   );
 };

@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { isMobile, isTablet } from "react-device-detect";
 import _ from "lodash";
-import DeviceDimensionsContext from "../context/DeviceDimensions/DeviceDimensions.context";
+import { DeviceDimensionsContext } from "../context/DeviceDimensions";
 
 interface MediaQuery {
   minWidth?: number;
@@ -37,9 +37,7 @@ const useResponsive = <P>(
   const matchQuery = useMemo(() => matchQueryFn(deviceWidth), [deviceWidth]);
   const MediaQueryMatchedComponent = useMemo(
     () =>
-      _.isNil(mediaQueries)
-        ? null
-        : mediaQueries.find(({ query }) => matchQuery(query))?.Component,
+      _.isNil(mediaQueries) ? null : mediaQueries.find(({ query }) => matchQuery(query))?.Component,
     [matchQuery, mediaQueries]
   );
 

@@ -17,10 +17,12 @@ export enum BIColor {
   Black = "black",
 }
 
-export interface BIProps extends StyledComponentProps {
+interface BIProps extends StyledComponentProps {
   shape?: BIShape;
   size?: BISize;
   color?: BIColor;
   link?: boolean;
   linkTo?: string;
 }
+
+export default BIProps;

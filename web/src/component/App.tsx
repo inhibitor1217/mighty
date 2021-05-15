@@ -1,5 +1,5 @@
 import { BrowserRouter as Router } from "react-router-dom";
-import DeviceDimensionsProvider from "../context/DeviceDimensions/DeviceDimensions.provider";
+import { DeviceDimensionsProvider } from "../context/DeviceDimensions";
 import GNB from "./layout/GNB";
 import { ContentRouter } from "./router";
 
