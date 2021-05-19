@@ -12,12 +12,11 @@ import introspection from "./graphql/introspection.json";
 
 const schema = buildClientSchema(__UNSAFE__cast<IntrospectionQuery>(introspection));
 
-const typesMap = {
-  DateTime: DateTimeResolver,
-};
-
 const link = ApolloLink.from([
-  withScalars({ schema, typesMap, validateEnums: true }),
+  withScalars({
+    schema,
+    typesMap: { DateTime: DateTimeResolver },
+  }),
   new RestLink({ uri: apiServerHost() }),
 ]);
 

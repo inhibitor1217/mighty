@@ -3,7 +3,9 @@
     "queryType": {
       "name": "Query"
     },
-    "mutationType": null,
+    "mutationType": {
+      "name": "Mutation"
+    },
     "subscriptionType": null,
     "types": [
       {
@@ -15,7 +17,7 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "Google",
+            "name": "GOOGLE",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
@@ -35,7 +37,7 @@
       },
       {
         "kind": "OBJECT",
-        "name": "GoogleOAuthRedirect",
+        "name": "GoogleOAuthRedirectResult",
         "description": null,
         "fields": [
           {
@@ -70,11 +72,44 @@
       },
       {
         "kind": "OBJECT",
-        "name": "GoogleOAuthRedirectQuery",
+        "name": "Mutation",
         "description": null,
         "fields": [
           {
-            "name": "body",
+            "name": "_",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          }
+        ],
+        "inputFields": null,
+        "interfaces": [],
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "SCALAR",
+        "name": "Boolean",
+        "description": "The `Boolean` scalar type represents `true` or `false`.",
+        "fields": null,
+        "inputFields": null,
+        "interfaces": null,
+        "enumValues": null,
+        "possibleTypes": null
+      },
+      {
+        "kind": "OBJECT",
+        "name": "Query",
+        "description": null,
+        "fields": [
+          {
+            "name": "GoogleOAuthRedirect",
             "description": null,
             "args": [
               {
@@ -99,9 +134,21 @@
               "name": null,
               "ofType": {
                 "kind": "OBJECT",
-                "name": "GoogleOAuthRedirect",
+                "name": "GoogleOAuthRedirectResult",
                 "ofType": null
               }
+            },
+            "isDeprecated": false,
+            "deprecationReason": null
+          },
+          {
+            "name": "_",
+            "description": null,
+            "args": [],
+            "type": {
+              "kind": "SCALAR",
+              "name": "Boolean",
+              "ofType": null
             },
             "isDeprecated": false,
             "deprecationReason": null
@@ -119,33 +166,6 @@
         "fields": null,
         "inputFields": null,
         "interfaces": null,
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "Query",
-        "description": null,
-        "fields": [
-          {
-            "name": "GoogleOAuthRedirect",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "OBJECT",
-                "name": "GoogleOAuthRedirectQuery",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
         "enumValues": null,
         "possibleTypes": null
       },
@@ -418,40 +438,30 @@
         "interfaces": null,
         "enumValues": [
           {
-            "name": "Active",
+            "name": "ACTIVE",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "Banned",
+            "name": "BANNED",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "Deleted",
+            "name": "DELETED",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
           },
           {
-            "name": "WaitingForActivation",
+            "name": "WAITING_FOR_ACTIVATION",
             "description": null,
             "isDeprecated": false,
             "deprecationReason": null
           }
         ],
-        "possibleTypes": null
-      },
-      {
-        "kind": "SCALAR",
-        "name": "Boolean",
-        "description": "The `Boolean` scalar type represents `true` or `false`.",
-        "fields": null,
-        "inputFields": null,
-        "interfaces": null,
-        "enumValues": null,
         "possibleTypes": null
       },
       {

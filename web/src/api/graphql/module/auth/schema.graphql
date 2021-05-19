@@ -1,7 +1,7 @@
-type GoogleOAuthRedirect {
+type GoogleOAuthRedirectResult {
   users: [User!]!
 }
 
-type GoogleOAuthRedirectQuery {
-  body(params: String!): GoogleOAuthRedirect!
+extend type Query {
+  GoogleOAuthRedirect(params: String!): GoogleOAuthRedirectResult!
 }

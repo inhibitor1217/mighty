@@ -13,28 +13,29 @@ export type Scalars = {
 };
 
 export enum AuthProvider {
-  Google = 'Google'
+  Google = 'GOOGLE'
 }
 
 
-export type GoogleOAuthRedirect = {
-  readonly __typename?: 'GoogleOAuthRedirect';
+export type GoogleOAuthRedirectResult = {
+  readonly __typename?: 'GoogleOAuthRedirectResult';
   readonly users: ReadonlyArray<User>;
 };
 
-export type GoogleOAuthRedirectQuery = {
-  readonly __typename?: 'GoogleOAuthRedirectQuery';
-  readonly body: GoogleOAuthRedirect;
-};
-
-
-export type GoogleOAuthRedirectQueryBodyArgs = {
-  params: Scalars['String'];
+export type Mutation = {
+  readonly __typename?: 'Mutation';
+  readonly _: Maybe<Scalars['Boolean']>;
 };
 
 export type Query = {
   readonly __typename?: 'Query';
-  readonly GoogleOAuthRedirect: GoogleOAuthRedirectQuery;
+  readonly GoogleOAuthRedirect: GoogleOAuthRedirectResult;
+  readonly _: Maybe<Scalars['Boolean']>;
+};
+
+
+export type QueryGoogleOAuthRedirectArgs = {
+  params: Scalars['String'];
 };
 
 export type User = {
@@ -61,8 +62,8 @@ export type UserProfile = {
 };
 
 export enum UserState {
-  Active = 'Active',
-  Banned = 'Banned',
-  Deleted = 'Deleted',
-  WaitingForActivation = 'WaitingForActivation'
+  Active = 'ACTIVE',
+  Banned = 'BANNED',
+  Deleted = 'DELETED',
+  WaitingForActivation = 'WAITING_FOR_ACTIVATION'
 }
