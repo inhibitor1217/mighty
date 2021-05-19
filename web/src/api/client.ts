@@ -5,10 +5,9 @@ import { buildClientSchema } from "graphql";
 import type { IntrospectionQuery } from "graphql";
 import { DateTimeResolver } from "graphql-scalars";
 
+import introspection from "__generated__/graphql/introspection.json";
 import { apiServerHost } from "const/env";
 import { __UNSAFE__cast } from "util/cast";
-
-import introspection from "./graphql/introspection.json";
 
 const schema = buildClientSchema(__UNSAFE__cast<IntrospectionQuery>(introspection));
 

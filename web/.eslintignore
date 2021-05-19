@@ -1,0 +1,8 @@
+# non-source files
+.eslintrc.js
+babel.config.js
+jest.config.js
+jest.setup.js
+
+# generated files
+src/__generated__/

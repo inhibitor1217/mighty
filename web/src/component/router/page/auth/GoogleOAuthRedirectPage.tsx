@@ -3,7 +3,7 @@ import { useLocation } from "react-router";
 
 import { googleOAuthRedirect } from "api/auth/OAuth";
 import ScrollView from "component/layout/ScrollView";
-import { Query, QueryGoogleOAuthRedirectArgs } from "type/graphql";
+import type { Query } from "type/graphql";
 
 const query = gql`
     query GoogleOAuthRedirect($params: String!) {

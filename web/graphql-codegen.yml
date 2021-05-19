@@ -1,14 +1,15 @@
 schema: "src/**/*.graphql"
 generates:
-  ./src/type/graphql.ts:
+  ./src/__generated__/graphql/type.ts:
     plugins:
       - typescript
     config:
       avoidOptionals: true
+      enumValues: api/graphql/enum
       immutableTypes: true
       scalars:
         DateTime: Date
-  ./src/api/graphql/introspection.json:
+  ./src/__generated__/graphql/introspection.json:
     plugins:
       - introspection
     config:
