@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { ConsoleColor } from '../../utils/console-color';
 
+type PrimitiveFieldValue = string | number | boolean;
+
 type EnvironmentStringOptions = {
   useColor: boolean;
   obfuscate: boolean;
@@ -14,6 +16,7 @@ export class EnvironmentString {
   private static readonly fieldValueColor = ConsoleColor.White;
   private static readonly numberFieldValueColor = ConsoleColor.Green;
   private static readonly booleanFieldValueColor = ConsoleColor.Blue;
+  private static readonly arrayDelimiter = ', ';
 
   constructor(
     domain: string,
@@ -25,32 +28,44 @@ export class EnvironmentString {
 
   field(
     name: string,
-    value: string | number | boolean,
+    value: PrimitiveFieldValue | PrimitiveFieldValue[],
     options?: Partial<EnvironmentStringOptions>
   ): string {
-    const { useColor = false, obfuscate = false } = this.mergeOptions(
-      options ?? {}
-    );
+    const mergedOptions = this.mergeOptions(options ?? {});
 
     const baseFieldNameString = `${this.domain}.${name}`;
-    const fieldNameString = useColor
+    const fieldNameString = mergedOptions.useColor
       ? ConsoleColor.apply(
           baseFieldNameString,
           EnvironmentString.fieldNameColor
         )
       : baseFieldNameString;
 
+    const fieldValueString = (Array.isArray(value) ? value : [value])
+      .map((item) => this.primitiveField(item, mergedOptions))
+      .join(EnvironmentString.arrayDelimiter);
+
+    return `${fieldNameString} = ${fieldValueString}`;
+  }
+
+  private primitiveField(
+    value: PrimitiveFieldValue,
+    options: Partial<EnvironmentStringOptions>
+  ): string {
+    const { obfuscate = false, useColor = false } = options;
+
     const baseFieldValueString = obfuscate
       ? value.toString().replace(/./g, '*')
       : value.toString();
+
     const fieldValueString = useColor
       ? ConsoleColor.apply(
           baseFieldValueString,
           EnvironmentString.getValueColor(value)
         )
-      : value;
+      : baseFieldValueString;
 
-    return `${fieldNameString} = ${fieldValueString}`;
+    return fieldValueString;
   }
 
   private mergeOptions(

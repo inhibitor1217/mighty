@@ -27,7 +27,7 @@ const link = ApolloLink.from([
       server: EnumValueFormat.KebabCase,
     },
   }),
-  new RestLink({ uri: apiServerHost() }),
+  new RestLink({ uri: apiServerHost(), credentials: "include" }),
 ]);
 
 const client = new ApolloClient({

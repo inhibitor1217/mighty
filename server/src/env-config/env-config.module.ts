@@ -117,6 +117,9 @@ export class EnvConfigModule {
         .allow(...AppStage.values)
         .default(AppStage.Development),
     }).required(),
+    cors: Joi.object({
+      origin: Joi.array().items(joiRequiredNonEmptyString),
+    }),
     database: Joi.object({
       postgres: joiDatabaseSchema,
     }).required(),
