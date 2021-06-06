@@ -5,7 +5,6 @@ generates:
       - typescript
     config:
       avoidOptionals: true
-      enumValues: api/graphql/enum
       immutableTypes: true
       scalars:
         DateTime: Date

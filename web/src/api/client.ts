@@ -1,6 +1,7 @@
 import { ApolloClient, ApolloLink, InMemoryCache } from "@apollo/client";
+import { EnumApolloLink, EnumValueFormat } from "apollo-link-enums";
 import { RestLink } from "apollo-link-rest";
-import { withScalars } from "apollo-link-scalars";
+import { ScalarApolloLink } from "apollo-link-scalars";
 import { buildClientSchema } from "graphql";
 import type { IntrospectionQuery } from "graphql";
 import { DateTimeResolver } from "graphql-scalars";
@@ -12,9 +13,19 @@ import { __UNSAFE__cast } from "util/cast";
 const schema = buildClientSchema(__UNSAFE__cast<IntrospectionQuery>(introspection));
 
 const link = ApolloLink.from([
-  withScalars({
+  new ScalarApolloLink({
     schema,
-    typesMap: { DateTime: DateTimeResolver },
+    typesMap: {
+      DateTime: DateTimeResolver,
+    },
+    validateEnums: true,
+  }),
+  new EnumApolloLink({
+    schema,
+    valueFormat: {
+      client: EnumValueFormat.ScreamingSnakeCase,
+      server: EnumValueFormat.KebabCase,
+    },
   }),
   new RestLink({ uri: apiServerHost() }),
 ]);

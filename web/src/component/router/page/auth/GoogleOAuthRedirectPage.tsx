@@ -33,7 +33,7 @@ const query = gql`
 const GoogleOAuthRedirectPage = () => {
   const location = useLocation();
 
-  const { data } = useQuery<Query, QueryGoogleOAuthRedirectArgs>(query, {
+  const { data } = useQuery<Query>(query, {
     variables: {
       params: location.search.substr(1),
     },
