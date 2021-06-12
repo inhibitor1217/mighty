@@ -1,7 +1,6 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import flexbox from "styles/flexbox";
-import { DefaultPalette } from "styles/palette";
 
 const Title = styled.div`
   ${flexbox("row", "flex-start")}
@@ -12,7 +11,7 @@ const Subtitle = styled.div`
   margin-top: 4px;
 
   span {
-    color: ${DefaultPalette["txt-black-light"]};
+    color: ${({ foundation }) => foundation?.theme?.["txt-black-dark"]};
   }
 `;
 

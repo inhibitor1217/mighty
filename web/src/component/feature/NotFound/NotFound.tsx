@@ -1,6 +1,6 @@
 import { useMemo } from "react";
+import { Icon, IconSize, Text, Typography } from "@channel.io/bezier-react";
 
-import Icon, { IconSize } from "component/base/Icon";
 import Divider from "component/common/Divider";
 
 import Styled from "./NotFound.styled";
@@ -10,8 +10,10 @@ const NotFound = ({ className, secondsUntilRedirect }: NotFoundProps) => {
   const titleElement = useMemo(
     () => (
       <>
-        <Icon name="error" iconSize={IconSize.L} />
-        <h3>잘못된 접근입니다.</h3>
+        <Icon name="error" size={IconSize.L} />
+        <Text bold typo={Typography.Size18} marginTop={6} color="txt-black-darkest">
+          잘못된 접근입니다.
+        </Text>
       </>
     ),
     []
@@ -23,7 +25,7 @@ const NotFound = ({ className, secondsUntilRedirect }: NotFoundProps) => {
     <Styled.Wrapper className={className}>
       {titleElement}
       {dividerElement}
-      <span>{secondsUntilRedirect}초 후 로비로 돌아갑니다.</span>
+      <Text typo={Typography.Size14}>{secondsUntilRedirect}초 후 로비로 돌아갑니다.</Text>
     </Styled.Wrapper>
   );
 };

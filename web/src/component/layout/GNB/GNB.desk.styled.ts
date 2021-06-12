@@ -1,8 +1,7 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import BaseBI from "component/base/BI";
 import flexbox from "styles/flexbox";
-import { DefaultPalette } from "styles/palette";
 import { GNB_Z_INDEX } from "styles/zIndex";
 
 import { GNB_DESKTOP_HEIGHT } from "./GNB.const";
@@ -20,7 +19,7 @@ const Wrapper = styled.nav`
   height: ${GNB_DESKTOP_HEIGHT}px;
   padding: 8px 16px;
   z-index: ${GNB_Z_INDEX};
-  background-color: ${DefaultPalette["bg-black-darkest"]};
+  background-color: ${({ foundation }) => foundation?.theme?.["bgtxt-absolute-black-dark"]};
 
   ${flexbox("row", "flex-start")}
 `;

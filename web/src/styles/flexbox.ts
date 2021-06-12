@@ -1,4 +1,4 @@
-import { css } from "styled-components";
+import { css } from "@channel.io/bezier-react";
 
 function flexbox(
   direction: "row" | "column",

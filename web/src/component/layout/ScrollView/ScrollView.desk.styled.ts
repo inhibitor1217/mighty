@@ -1,4 +1,4 @@
-import styled, { css } from "styled-components";
+import { css, styled } from "@channel.io/bezier-react";
 
 import { DESK_CONTENT_WIDTH, SHALLOW_CONTENT_WIDTH, WIDE_CONTENT_WIDTH } from "const/layout";
 import { GNB_DESKTOP_HEIGHT } from "component/layout/GNB";

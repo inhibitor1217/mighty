@@ -1,20 +1,19 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import flexbox from "styles/flexbox";
-import { DefaultPalette } from "styles/palette";
 
 const Line = styled.div`
   flex: 1;
   height: 1px;
   margin: 0 8px;
-  background-color: ${DefaultPalette["bdr-white-normal"]};
+  background-color: ${({ foundation }) => foundation?.theme?.["bdr-grey-light"]};
 `;
 
 const CenterCircle = styled.div`
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background-color: ${DefaultPalette["bdr-white-normal"]};
+  background-color: ${({ foundation }) => foundation?.theme?.["bdr-grey-light"]};
 `;
 
 const Wrapper = styled.div`

@@ -1,3 +1,5 @@
+import { Text, Typography } from "@channel.io/bezier-react";
+
 import BI, { BIColor, BISize } from "component/base/BI";
 import Divider from "component/common/Divider";
 
@@ -12,10 +14,14 @@ const SignIn = ({ className }: SignInProps) => {
     <Styled.Wrapper className={className}>
       <Styled.Title>
         <BI color={BIColor.Black} link={false} size={BISize.M} />
-        <h3>에 로그인하세요</h3>
+        <Text typo={Typography.Size18} bold>
+          에 로그인하세요
+        </Text>
       </Styled.Title>
       <Styled.Subtitle>
-        <span>로그인 후 게임을 시작하세요.</span>
+        <Text typo={Typography.Size16} color="txt-black-dark">
+          로그인 후 게임을 시작하세요.
+        </Text>
       </Styled.Subtitle>
       <CardSvg width={MOBILE_SIGN_IN_CARD_SIZE} height={MOBILE_SIGN_IN_CARD_SIZE} />
       <Divider />

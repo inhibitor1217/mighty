@@ -1,4 +1,5 @@
-import styled, { keyframes } from "styled-components";
+import { css, styled } from "@channel.io/bezier-react";
+import { keyframes } from "styled-components";
 
 import type SimpleSpinnerProps from "./SimpleSpinner.type";
 
@@ -39,7 +40,9 @@ const SpinnerSvg = styled.svg<SimpleSpinnerProps>`
   width: ${({ size }) => size}px;
   height: ${({ size }) => size}px;
 
-  animation: ${RotateKeyframes} 2s linear infinite;
+  ${() => css`
+    animation: ${RotateKeyframes} 2s linear infinite;
+  `}
   transform-origin: center center;
 `;
 
@@ -49,7 +52,10 @@ const SpinnerCircle = styled.circle`
   stroke-dashoffset: 0;
   stroke-linecap: round;
 
-  animation: ${DashKeyframes} 1.5s ease-in-out infinite, ${StrokeKeyframes} 3s ease-in-out infinite;
+  ${() => css`
+    animation: ${DashKeyframes} 1.5s ease-in-out infinite,
+      ${StrokeKeyframes} 3s ease-in-out infinite;
+  `};
 `;
 
 const Styled = {

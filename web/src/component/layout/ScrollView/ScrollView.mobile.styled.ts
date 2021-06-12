@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import flexbox from "styles/flexbox";
 import { GNB_MOBILE_HEIGHT } from "component/layout/GNB";

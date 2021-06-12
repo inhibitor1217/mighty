@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@apollo/client": "^3.3.19",
+    "@channel.io/bezier-react": "^0.9.3",
     "apollo-link-enums": "^0.1.2",
     "apollo-link-rest": "^0.8.0-beta.0",
     "apollo-link-scalars": "^2.1.3",

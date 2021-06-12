@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import BaseSimpleSpinner from "component/common/SimpleSpinner";
 import fadeStyle from "styles/fade";

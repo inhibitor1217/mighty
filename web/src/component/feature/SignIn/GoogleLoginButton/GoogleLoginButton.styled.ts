@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import { RESOURCE_IMAGE_PATH } from "const/path";
 import clickable from "styles/clickable";

@@ -1,18 +1,9 @@
-import styled from "styled-components";
+import { styled } from "@channel.io/bezier-react";
 
 import flexbox from "styles/flexbox";
-import { DefaultPalette } from "styles/palette";
 
 const Wrapper = styled.div`
   ${flexbox("column", "center", "center")}
-
-  h3 {
-    margin-top: 8px;
-  }
-
-  span {
-    color: ${DefaultPalette["txt-black-light"]};
-  }
 `;
 
 const Styled = {
