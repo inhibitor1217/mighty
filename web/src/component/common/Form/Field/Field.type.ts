@@ -8,13 +8,16 @@ type InputRenderFn<T extends string | number> = (props: {
   input: FieldInputProps<T>;
   meta: FieldMetaProps<T>;
   helper: FieldHelperProps<T>;
+  readonly: boolean;
 }) => ReactNode;
 
 interface FieldProps<T extends string | number> extends StyledComponentProps, FieldConfig<T> {
   icon?: IconName;
+  label: string;
   description?: string;
   help?: string;
   required?: boolean;
+  readonly?: boolean;
   renderInput: InputRenderFn<T>;
 
   value: T; // override type from formik

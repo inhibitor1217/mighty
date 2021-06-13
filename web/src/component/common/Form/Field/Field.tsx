@@ -18,20 +18,21 @@ import Styled from "./Field.styled";
 const Field = <T extends string | number>({
   className,
   icon,
-  name,
+  label,
   description,
   help,
   required,
+  readonly = false,
   renderInput,
   ...restProps
 }: FieldProps<T>) => {
-  const fieldProps = { name, ...restProps };
-  const [input, meta, helper] = useField<T>(fieldProps);
+  const [input, meta, helper] = useField<T>(restProps);
 
-  const InputElement = useMemo(() => renderInput({ input, meta, helper }), [
+  const InputElement = useMemo(() => renderInput({ input, meta, helper, readonly }), [
     input,
     meta,
     helper,
+    readonly,
     renderInput,
   ]);
 
@@ -39,20 +40,20 @@ const Field = <T extends string | number>({
 
   const sectionLabelContent = useMemo(() => {
     if (!required) {
-      return name;
+      return label;
     }
 
     return (
       <Styled.SectionLabelContentWrapper>
         <Text typo={Typography.Size13} bold>
-          {name}
+          {label}
         </Text>
         <Badge size={TagBadgeSize.XS} variant={TagBadgeVariant.Yellow}>
           필수
         </Badge>
       </Styled.SectionLabelContentWrapper>
     );
-  }, [name, required]);
+  }, [label, required]);
 
   const sectionLabelHelp = useMemo(
     () => (_.isEmpty(help) ? undefined : { tooltipContent: help ?? unreachable() }),
