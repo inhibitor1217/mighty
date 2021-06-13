@@ -2,8 +2,10 @@ import { gql, useQuery } from "@apollo/client";
 import { useLocation } from "react-router";
 
 import { googleOAuthRedirect } from "api/auth/OAuth";
+import ContentSpinner from "component/common/ContentSpinner";
+import Error from "component/common/Error";
 import ScrollView from "component/layout/ScrollView";
-import type { Query } from "type/graphql";
+import type { Query, QueryGoogleOAuthRedirectArgs } from "type/graphql";
 
 const query = gql`
     query GoogleOAuthRedirect($params: String!) {
@@ -32,16 +34,17 @@ const query = gql`
 
 const GoogleOAuthRedirectPage = () => {
   const location = useLocation();
+  const params = location.search.substr(1);
 
-  const { data } = useQuery<Query>(query, {
-    variables: {
-      params: location.search.substr(1),
-    },
+  const { data, loading, error } = useQuery<Query, QueryGoogleOAuthRedirectArgs>(query, {
+    variables: { params },
   });
 
   return (
     <ScrollView center>
-      <div>{JSON.stringify(data)}</div>
+      {loading && <ContentSpinner />}
+      {error && <Error error={error} />}
+      {!loading && !error && <div>{JSON.stringify(data)}</div>}
     </ScrollView>
   );
 };
