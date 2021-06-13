@@ -8,7 +8,7 @@ interface ErrorObject {
 }
 
 interface ErrorProps extends StyledComponentProps {
-  error: ApolloError | ErrorObject;
+  error: Error | ApolloError | ErrorObject;
 }
 
 export default ErrorProps;

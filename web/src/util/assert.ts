@@ -5,11 +5,11 @@ export default function assert(predicate: boolean, message?: string): predicate 
   if (!predicate) {
     if (isProduction()) {
       // eslint-disable-next-line no-console
-      console.debug("assertion failed", message);
+      console.debug("Assertion failed", message);
       return false;
     }
 
-    throw new AssertionException(message ?? "assertion failed");
+    throw new AssertionException(message ?? "Assertion failed");
   }
 
   return true;
