@@ -1,11 +1,17 @@
 import { gql, useQuery } from "@apollo/client";
-import { useLocation } from "react-router";
+import { Redirect, useLocation } from "react-router";
+import _ from "lodash";
 
 import { googleOAuthRedirect } from "api/auth/OAuth";
 import ContentSpinner from "component/common/ContentSpinner";
 import Error from "component/common/Error";
 import ScrollView from "component/layout/ScrollView";
+import BannedUserInfo from "component/feature/User/BannedUserInfo";
+import DeletedUserInfo from "component/feature/User/DeletedUserInfo";
+import UserActivationForm from "component/feature/User/UserActivationForm";
+import { UserState } from "type/graphql";
 import type { Query, QueryGoogleOAuthRedirectArgs } from "type/graphql";
+import unreachable from "util/unreachable";
 
 const query = gql`
     query GoogleOAuthRedirect($params: String!) {
@@ -40,13 +46,35 @@ const GoogleOAuthRedirectPage = () => {
     variables: { params },
   });
 
-  return (
-    <ScrollView center>
-      {loading && <ContentSpinner />}
-      {error && <Error error={error} />}
-      {!loading && !error && <div>{JSON.stringify(data)}</div>}
-    </ScrollView>
-  );
+  const user = _.first(data?.GoogleOAuthRedirect.users);
+
+  const ContentElement = (() => {
+    if (loading) {
+      return <ContentSpinner />;
+    }
+    if (error) {
+      return <Error error={error} />;
+    }
+
+    if (_.isNil(user)) {
+      return <Error error={{ message: "No user found" }} />;
+    }
+
+    switch (user.state) {
+      case UserState.Active:
+        return <Redirect to="/" />;
+      case UserState.Banned:
+        return <BannedUserInfo user={user} />;
+      case UserState.Deleted:
+        return <DeletedUserInfo user={user} />;
+      case UserState.WaitingForActivation:
+        return <UserActivationForm user={user} />;
+      default:
+        return unreachable();
+    }
+  })();
+
+  return <ScrollView center>{ContentElement}</ScrollView>;
 };
 
 export default GoogleOAuthRedirectPage;
