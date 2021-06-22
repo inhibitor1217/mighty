@@ -16,7 +16,7 @@ const defaultRenderStringInput: FieldProps<string>["renderInput"] = ({ input, me
     <>
       <TextField
         name={name}
-        value={value}
+        value={value ?? ""}
         onChange={onChange}
         onBlur={onBlur}
         hasError={hasError}

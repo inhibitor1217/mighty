@@ -23,10 +23,14 @@ const Field = <T extends string | number>({
   help,
   required,
   readonly = false,
+  value,
   renderInput,
   ...restProps
 }: FieldProps<T>) => {
-  const [input, meta, helper] = useField<T>(restProps);
+  const [input, meta, helper] = useField({
+    value: value ?? undefined,
+    ...restProps,
+  });
 
   const InputElement = useMemo(() => renderInput({ input, meta, helper, readonly }), [
     input,
@@ -45,7 +49,7 @@ const Field = <T extends string | number>({
 
     return (
       <Styled.SectionLabelContentWrapper>
-        <Text typo={Typography.Size13} bold>
+        <Text typo={Typography.Size13} bold color="txt-black-dark">
           {label}
         </Text>
         <Badge size={TagBadgeSize.XS} variant={TagBadgeVariant.Yellow}>
