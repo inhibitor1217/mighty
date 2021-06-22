@@ -9,6 +9,7 @@ import ScrollView from "component/layout/ScrollView";
 import BannedUserInfo from "component/feature/User/BannedUserInfo";
 import DeletedUserInfo from "component/feature/User/DeletedUserInfo";
 import UserActivationForm from "component/feature/User/UserActivationForm";
+import { ROOT_PATH } from "const/path";
 import { UserState } from "type/graphql";
 import type { Query, QueryGoogleOAuthRedirectArgs } from "type/graphql";
 import unreachable from "util/unreachable";
@@ -62,7 +63,7 @@ const GoogleOAuthRedirectPage = () => {
 
     switch (user.state) {
       case UserState.Active:
-        return <Redirect to="/" />;
+        return <Redirect to={ROOT_PATH} />;
       case UserState.Banned:
         return <BannedUserInfo user={user} />;
       case UserState.Deleted:
