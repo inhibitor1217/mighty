@@ -69,7 +69,7 @@ const GoogleOAuthRedirectPage = () => {
       case UserState.Deleted:
         return <DeletedUserInfo user={user} />;
       case UserState.WaitingForActivation:
-        return <UserActivationForm user={user} />;
+        return <UserActivationForm userId={user.id} />;
       default:
         return unreachable();
     }

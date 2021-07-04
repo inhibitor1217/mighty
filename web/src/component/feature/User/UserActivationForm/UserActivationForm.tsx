@@ -1,4 +1,5 @@
-import { useMemo } from "react";
+import { gql, useMutation, useQuery } from "@apollo/client";
+import { useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -12,12 +13,19 @@ import {
 import { Formik } from "formik";
 import type { FormikProps } from "formik";
 
+import { profile } from "api/user/profile";
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
 import * as forms from "core/form";
 import type { UserProfileFormValues } from "core/form";
-import { UserState } from "type/graphql";
+import {
+  Mutation,
+  MutationUpdateUserProfileArgs,
+  Query,
+  QueryUserArgs,
+  UserState,
+} from "type/graphql";
 import assert from "util/assert";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
@@ -95,7 +103,56 @@ function renderUserProfileForm({
   );
 }
 
-const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
+const query = gql`
+  query ReadUser($id: ID!) {
+    user(id: $id) @client @type(name: "User") {
+      id
+      createdAt
+      updatedAt
+      provider
+      providerId
+      state
+      userProfileId
+      profile @type(name: "UserProfile") {
+        id
+        createdAt
+        updatedAt
+        displayName
+        username
+        email
+        photo
+      }
+    }
+  }
+`;
+
+const mutation = gql`
+  mutation UpdateUserProfile($userId: ID!, $input: UpdateUserProfileInput!) {
+    updateUserProfile(userId: $userId, input: $input) @rest(path: "${profile(
+      "{args.userId}"
+    )}", method: PATCH, bodyKey: "input") {
+      users @type(name: "User") {
+        id
+        profile @type(name: "UserProfile") {
+          id
+          updatedAt
+          displayName
+        }
+      }
+    }
+  }
+`;
+
+const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
+  const { data } = useQuery<Query, QueryUserArgs>(query, {
+    variables: { id: userId },
+    fetchPolicy: "cache-only",
+  });
+
+  console.log(data);
+  // @ts-ignore
+  const { user } = data;
+
   assert(user.state === UserState.WaitingForActivation);
 
   const {
@@ -103,12 +160,21 @@ const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
   } = user;
 
   const userProfileFormInitialValues: UserProfileFormValues = useMemo(
-    () => ({
-      displayName,
-      email,
-      photo,
-    }),
+    () => ({ displayName, email, photo }),
     [displayName, email, photo]
+  );
+
+  const [updateUserProfile] = useMutation<Mutation, MutationUpdateUserProfileArgs>(mutation);
+
+  const onSubmitUserProfileForm = useCallback(
+    (values: UserProfileFormValues) =>
+      updateUserProfile({
+        variables: {
+          userId,
+          input: values,
+        },
+      }),
+    [userId, updateUserProfile]
   );
 
   return (
@@ -122,6 +188,7 @@ const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
 
       <Formik<UserProfileFormValues>
         initialValues={userProfileFormInitialValues}
+        onSubmit={onSubmitUserProfileForm}
         {...forms.userProfile}
       >
         {renderUserProfileForm}

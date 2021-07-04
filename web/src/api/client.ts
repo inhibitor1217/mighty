@@ -5,6 +5,7 @@ import { ScalarApolloLink } from "apollo-link-scalars";
 import { buildClientSchema } from "graphql";
 import type { IntrospectionQuery } from "graphql";
 import { DateTimeResolver } from "graphql-scalars";
+import _ from "lodash";
 
 import introspection from "__generated__/graphql/introspection.json";
 import { apiServerHost } from "const/env";
@@ -31,7 +32,23 @@ const link = ApolloLink.from([
 ]);
 
 const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          user: {
+            read(existing, { args, toReference }) {
+              const id = _.get(args, "id");
+              if (_.isEmpty(id)) {
+                return null;
+              }
+              return toReference({ __typename: "User", id });
+            },
+          },
+        },
+      },
+    },
+  }),
   link,
 });
 
