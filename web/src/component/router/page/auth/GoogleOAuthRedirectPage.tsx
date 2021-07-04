@@ -14,7 +14,7 @@ import { UserState } from "type/graphql";
 import type { Query, QueryGoogleOAuthRedirectArgs } from "type/graphql";
 import unreachable from "util/unreachable";
 
-const query = gql`
+const GOOGLE_OAUTH_REDIRECT_QUERY = gql`
     query GoogleOAuthRedirect($params: String!) {
       GoogleOAuthRedirect(params: $params) @rest(path: "${googleOAuthRedirect}?{args.params}") {
         users @type(name: "User") {
@@ -43,9 +43,12 @@ const GoogleOAuthRedirectPage = () => {
   const location = useLocation();
   const params = location.search.substr(1);
 
-  const { data, loading, error } = useQuery<Query, QueryGoogleOAuthRedirectArgs>(query, {
-    variables: { params },
-  });
+  const { data, loading, error } = useQuery<Query, QueryGoogleOAuthRedirectArgs>(
+    GOOGLE_OAUTH_REDIRECT_QUERY,
+    {
+      variables: { params },
+    }
+  );
 
   const user = _.first(data?.GoogleOAuthRedirect.users);
 
