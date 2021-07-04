@@ -1,5 +1,6 @@
-import { useMemo } from "react";
-import { Link } from "react-router-dom";
+import { gql, useMutation } from "@apollo/client";
+import { useCallback, useMemo } from "react";
+import { Link, useHistory } from "react-router-dom";
 import {
   Avatar,
   AvatarSize,
@@ -13,14 +14,15 @@ import { Formik } from "formik";
 import type { FormikProps } from "formik";
 import qs from "query-string";
 
+import { activate } from "api/rest/auth/common";
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
-import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
+import { AUTH_PATH, ROOT_PATH, SIGN_IN_PATH } from "const/path";
 import * as forms from "core/form";
 import type { UserProfileFormValues } from "core/form";
 import { useUpdateUserProfile } from "hook/form";
 import { useUser } from "hook/read";
-import { UserState } from "type/graphql";
+import { Mutation, UserState } from "type/graphql";
 import assert from "util/assert";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
@@ -99,8 +101,20 @@ function renderUserProfileForm({
   );
 }
 
+const ACTIVATE_ME_MUTATION = gql`
+  mutation ActivateMe {
+    activateMe(input: {}) @rest(path: "${activate()}", method: PATCH, bodyKey: "input") {
+      users @type(name: "User") {
+        id
+        state
+      }
+    }
+  }
+`;
+
 const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
   const user = useUser(userId);
+  const history = useHistory();
 
   assert(user.state === UserState.WaitingForActivation);
 
@@ -114,6 +128,19 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
   );
 
   const submitUpdateUserProfileForm = useUpdateUserProfile(userId);
+
+  const onActivateSuccess = useCallback(() => {
+    history.push(ROOT_PATH);
+  }, [history]);
+
+  const [activateMe, { loading: isActivateMeLoading }] = useMutation<Mutation>(
+    ACTIVATE_ME_MUTATION,
+    {
+      onCompleted: onActivateSuccess,
+    }
+  );
+
+  const onClickActivateButton = useCallback(() => activateMe(), []);
 
   return (
     <Styled.Wrapper className={className}>
@@ -133,7 +160,7 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
       </Formik>
 
       <Styled.ActionsWrapper>
-        <Button text="계정 활성화" />
+        <Button text="계정 활성화" loading={isActivateMeLoading} onClick={onClickActivateButton} />
         <Link to={signInLink}>
           <Button styleVariant={ButtonStyleVariant.Secondary} text="다른 계정으로 로그인" />
         </Link>

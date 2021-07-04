@@ -2,6 +2,14 @@ type GoogleOAuthRedirectResult {
   users: [User!]!
 }
 
+type ActivateMeResult {
+  users: [User!]!
+}
+
 extend type Query {
   GoogleOAuthRedirect(params: String!): GoogleOAuthRedirectResult!
+}
+
+extend type Mutation {
+  activateMe: ActivateMeResult!
 }
