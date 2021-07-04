@@ -65,9 +65,9 @@ const GoogleOAuthRedirectPage = () => {
       case UserState.Active:
         return <Redirect to={ROOT_PATH} />;
       case UserState.Banned:
-        return <BannedUserInfo user={user} />;
+        return <BannedUserInfo userId={user.id} />;
       case UserState.Deleted:
-        return <DeletedUserInfo user={user} />;
+        return <DeletedUserInfo userId={user.id} />;
       case UserState.WaitingForActivation:
         return <UserActivationForm userId={user.id} />;
       default:

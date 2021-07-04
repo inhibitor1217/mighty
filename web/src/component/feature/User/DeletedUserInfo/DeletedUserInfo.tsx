@@ -10,6 +10,7 @@ import {
 } from "@channel.io/bezier-react";
 
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
+import { useUser } from "hook/read";
 import { UserState } from "type/graphql";
 import assert from "util/assert";
 
@@ -18,7 +19,9 @@ import Styled from "./DeletedUserInfo.styled";
 
 const signInLinkTo = [AUTH_PATH, SIGN_IN_PATH].join("");
 
-const DeletedUserInfo = ({ className, user }: DeletedUserInfoProps) => {
+const DeletedUserInfo = ({ className, userId }: DeletedUserInfoProps) => {
+  const user = useUser(userId);
+
   assert(user.state === UserState.Deleted);
 
   return (

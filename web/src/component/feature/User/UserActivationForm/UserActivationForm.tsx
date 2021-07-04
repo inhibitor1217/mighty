@@ -1,4 +1,4 @@
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -19,13 +19,8 @@ import type { FieldProps } from "component/common/Form";
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
 import * as forms from "core/form";
 import type { UserProfileFormValues } from "core/form";
-import {
-  Mutation,
-  MutationUpdateUserProfileArgs,
-  Query,
-  QueryUserArgs,
-  UserState,
-} from "type/graphql";
+import { useUser } from "hook/read";
+import { Mutation, MutationUpdateUserProfileArgs, UserState } from "type/graphql";
 import assert from "util/assert";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
@@ -103,29 +98,6 @@ function renderUserProfileForm({
   );
 }
 
-const query = gql`
-  query ReadUser($id: ID!) {
-    user(id: $id) @client @type(name: "User") {
-      id
-      createdAt
-      updatedAt
-      provider
-      providerId
-      state
-      userProfileId
-      profile @type(name: "UserProfile") {
-        id
-        createdAt
-        updatedAt
-        displayName
-        username
-        email
-        photo
-      }
-    }
-  }
-`;
-
 const mutation = gql`
   mutation UpdateUserProfile($userId: ID!, $input: UpdateUserProfileInput!) {
     updateUserProfile(userId: $userId, input: $input) @rest(path: "${profile(
@@ -144,14 +116,7 @@ const mutation = gql`
 `;
 
 const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
-  const { data } = useQuery<Query, QueryUserArgs>(query, {
-    variables: { id: userId },
-    fetchPolicy: "cache-only",
-  });
-
-  console.log(data);
-  // @ts-ignore
-  const { user } = data;
+  const user = useUser(userId);
 
   assert(user.state === UserState.WaitingForActivation);
 

@@ -10,6 +10,7 @@ import {
 } from "@channel.io/bezier-react";
 
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
+import { useUser } from "hook/read";
 import { UserState } from "type/graphql";
 import assert from "util/assert";
 
@@ -18,7 +19,9 @@ import Styled from "./BannedUserInfo.styled";
 
 const signInLinkTo = [AUTH_PATH, SIGN_IN_PATH].join("");
 
-const BannedUserInfo = ({ className, user }: BannedUserInfoProps) => {
+const BannedUserInfo = ({ className, userId }: BannedUserInfoProps) => {
+  const user = useUser(userId);
+
   assert(user.state === UserState.Banned);
 
   return (
