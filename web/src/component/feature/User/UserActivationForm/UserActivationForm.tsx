@@ -11,6 +11,7 @@ import {
 } from "@channel.io/bezier-react";
 import { Formik } from "formik";
 import type { FormikProps } from "formik";
+import qs from "query-string";
 
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
@@ -25,7 +26,8 @@ import assert from "util/assert";
 import type UserActivationFormProps from "./UserActivationForm.type";
 import Styled from "./UserActivationForm.styled";
 
-const signInLinkTo = [AUTH_PATH, SIGN_IN_PATH].join("");
+const baseSignInLink = [AUTH_PATH, SIGN_IN_PATH].join("");
+const signInLink = `${baseSignInLink}?${qs.stringify({ accountSelect: true })}`;
 
 const renderUserProfileReadonlyPhotoInput: FieldProps<string>["renderInput"] = ({ input }) => {
   const { value } = input;
@@ -132,7 +134,7 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
 
       <Styled.ActionsWrapper>
         <Button text="계정 활성화" />
-        <Link to={signInLinkTo}>
+        <Link to={signInLink}>
           <Button styleVariant={ButtonStyleVariant.Secondary} text="다른 계정으로 로그인" />
         </Link>
       </Styled.ActionsWrapper>
