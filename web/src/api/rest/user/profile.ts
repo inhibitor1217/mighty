@@ -1,5 +1,5 @@
 import { modulePath } from "./const";
 
-export function profile(userId: string | number) {
+export function userProfile(userId: string | number) {
   return `${modulePath}/${userId}/profile`;
 }

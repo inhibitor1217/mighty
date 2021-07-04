@@ -1,5 +1,4 @@
-import { gql, useMutation } from "@apollo/client";
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -13,14 +12,14 @@ import {
 import { Formik } from "formik";
 import type { FormikProps } from "formik";
 
-import { profile } from "api/rest/user/profile";
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
 import * as forms from "core/form";
 import type { UserProfileFormValues } from "core/form";
+import { useUpdateUserProfile } from "hook/form";
 import { useUser } from "hook/read";
-import { Mutation, MutationUpdateUserProfileArgs, UserState } from "type/graphql";
+import { UserState } from "type/graphql";
 import assert from "util/assert";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
@@ -98,23 +97,6 @@ function renderUserProfileForm({
   );
 }
 
-const mutation = gql`
-  mutation UpdateUserProfile($userId: ID!, $input: UpdateUserProfileInput!) {
-    updateUserProfile(userId: $userId, input: $input) @rest(path: "${profile(
-      "{args.userId}"
-    )}", method: PATCH, bodyKey: "input") {
-      users @type(name: "User") {
-        id
-        profile @type(name: "UserProfile") {
-          id
-          updatedAt
-          displayName
-        }
-      }
-    }
-  }
-`;
-
 const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
   const user = useUser(userId);
 
@@ -129,18 +111,7 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
     [displayName, email, photo]
   );
 
-  const [updateUserProfile] = useMutation<Mutation, MutationUpdateUserProfileArgs>(mutation);
-
-  const onSubmitUserProfileForm = useCallback(
-    (values: UserProfileFormValues) =>
-      updateUserProfile({
-        variables: {
-          userId,
-          input: values,
-        },
-      }),
-    [userId, updateUserProfile]
-  );
+  const submitUpdateUserProfileForm = useUpdateUserProfile(userId);
 
   return (
     <Styled.Wrapper className={className}>
@@ -153,7 +124,7 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
 
       <Formik<UserProfileFormValues>
         initialValues={userProfileFormInitialValues}
-        onSubmit={onSubmitUserProfileForm}
+        onSubmit={submitUpdateUserProfileForm}
         {...forms.userProfile}
       >
         {renderUserProfileForm}
