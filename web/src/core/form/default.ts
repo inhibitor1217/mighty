@@ -1,7 +1,5 @@
-import { FormPreset } from "./type";
+import type { FormPreset } from "./type";
 
-const defaultFormPreset: FormPreset<any> = {
+export const defaultFormPreset: FormPreset<any> = {
   enableReinitialize: true,
 };
-
-export default defaultFormPreset;

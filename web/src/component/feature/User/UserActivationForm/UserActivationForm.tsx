@@ -11,7 +11,8 @@ import {
   Typography,
 } from "@channel.io/bezier-react";
 import { Formik } from "formik";
-import type { FormikProps } from "formik";
+import type { FormikHelpers, FormikProps } from "formik";
+import _ from "lodash";
 import qs from "query-string";
 
 import { activate } from "api/rest/auth/common";
@@ -24,6 +25,7 @@ import { useUpdateUserProfile } from "hook/form";
 import { useUser } from "hook/read";
 import { Mutation, UserState } from "type/graphql";
 import assert from "util/assert";
+import { parseServerError } from "util/serverError";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
 import Styled from "./UserActivationForm.styled";
@@ -44,12 +46,14 @@ const renderUserProfileReadonlyPhotoInput: FieldProps<string>["renderInput"] = (
 function renderUserProfileForm({
   values,
   dirty,
+  status,
   isValid,
   isSubmitting,
   resetForm,
   submitForm,
 }: FormikProps<UserProfileFormValues>) {
   const { displayName, email, photo } = values;
+  const formError = _.get(status, "error");
 
   return (
     <Styled.UserProfileFormWrapper>
@@ -97,6 +101,12 @@ function renderUserProfileForm({
           />
         </Styled.ActionsWrapper>
       )}
+
+      {formError && (
+        <Text typo={Typography.Size13} color="bgtxt-yellow-normal" marginTop={6}>
+          {forms.userProfileHelpers.parseError(formError)}
+        </Text>
+      )}
     </Styled.UserProfileFormWrapper>
   );
 }
@@ -127,20 +137,26 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
     [displayName, email, photo]
   );
 
-  const submitUpdateUserProfileForm = useUpdateUserProfile(userId);
+  const updateUserProfile = useUpdateUserProfile(userId);
+
+  const submitUpdateUserProfileForm = useCallback(
+    (values: UserProfileFormValues, helpers: FormikHelpers<UserProfileFormValues>) =>
+      updateUserProfile(values).catch((error) => helpers.setStatus({ error })),
+    [updateUserProfile]
+  );
 
   const onActivateSuccess = useCallback(() => {
     history.push(ROOT_PATH);
   }, [history]);
 
-  const [activateMe, { loading: isActivateMeLoading }] = useMutation<Mutation>(
-    ACTIVATE_ME_MUTATION,
-    {
-      onCompleted: onActivateSuccess,
-    }
-  );
+  const [
+    activateMe,
+    { loading: isActivateMeLoading, error: activateMeError },
+  ] = useMutation<Mutation>(ACTIVATE_ME_MUTATION, {
+    onCompleted: onActivateSuccess,
+  });
 
-  const onClickActivateButton = useCallback(() => activateMe(), []);
+  const onClickActivateButton = useCallback(() => activateMe().catch(_.noop), []);
 
   return (
     <Styled.Wrapper className={className}>
@@ -165,6 +181,12 @@ const UserActivationForm = ({ className, userId }: UserActivationFormProps) => {
           <Button styleVariant={ButtonStyleVariant.Secondary} text="다른 계정으로 로그인" />
         </Link>
       </Styled.ActionsWrapper>
+
+      {activateMeError && (
+        <Text typo={Typography.Size13} color="bgtxt-yellow-normal" marginTop={6}>
+          {parseServerError(activateMeError)}
+        </Text>
+      )}
     </Styled.Wrapper>
   );
 };

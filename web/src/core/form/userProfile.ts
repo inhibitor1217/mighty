@@ -1,8 +1,9 @@
 import _ from "lodash";
 
 import type { UserProfile } from "type/graphql";
+import { parseServerError } from "util/serverError";
 
-import defaultFormPreset from "./default";
+import { defaultFormPreset } from "./default";
 import { FormPreset } from "./type";
 
 export interface UserProfileFormValues
@@ -23,6 +24,10 @@ const userProfile: FormPreset<UserProfileFormValues> = {
 
     return errors;
   },
+};
+
+export const helpers = {
+  parseError: parseServerError,
 };
 
 export default userProfile;
