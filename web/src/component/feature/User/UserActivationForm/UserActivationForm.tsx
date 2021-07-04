@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
   Avatar,
@@ -11,18 +11,17 @@ import {
 } from "@channel.io/bezier-react";
 import { Formik } from "formik";
 import type { FormikProps } from "formik";
-import _ from "lodash";
 
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";
-import { UserProfile, UserState } from "type/graphql";
+import * as forms from "core/form";
+import type { UserProfileFormValues } from "core/form";
+import { UserState } from "type/graphql";
 import assert from "util/assert";
 
 import type UserActivationFormProps from "./UserActivationForm.type";
 import Styled from "./UserActivationForm.styled";
-
-interface UserProfileFormValues extends Pick<UserProfile, "displayName" | "email" | "photo"> {}
 
 const signInLinkTo = [AUTH_PATH, SIGN_IN_PATH].join("");
 
@@ -103,7 +102,7 @@ const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
     profile: { displayName, email, photo },
   } = user;
 
-  const userProfileFormInitialValues = useMemo(
+  const userProfileFormInitialValues: UserProfileFormValues = useMemo(
     () => ({
       displayName,
       email,
@@ -111,20 +110,6 @@ const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
     }),
     [displayName, email, photo]
   );
-
-  const validateUserProfileForm = useCallback((values: UserProfileFormValues) => {
-    const errors = {};
-
-    if (_.isEmpty(values.displayName)) {
-      _.set(errors, "displayName", "비워둘 수 없습니다.");
-    }
-
-    if (values.displayName.length > 24) {
-      _.set(errors, "displayName", "24자 이하여야 합니다.");
-    }
-
-    return errors;
-  }, []);
 
   return (
     <Styled.Wrapper className={className}>
@@ -137,8 +122,7 @@ const UserActivationForm = ({ className, user }: UserActivationFormProps) => {
 
       <Formik<UserProfileFormValues>
         initialValues={userProfileFormInitialValues}
-        validate={validateUserProfileForm}
-        onSubmit={_.noop}
+        {...forms.userProfile}
       >
         {renderUserProfileForm}
       </Formik>
