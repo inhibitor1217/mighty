@@ -1,6 +1,5 @@
 import type { Response } from 'express';
 import {
-  Body,
   Controller,
   Delete,
   Get,
@@ -15,8 +14,9 @@ import { AuthenticatedRequest } from './entity/authenticated-request';
 import { GoogleOauthGuard } from './guard/google-oauth.guard';
 import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { AllowWaitingActivation } from './decorator/allow-waiting-activation.decorator';
-import { ActivateUserDto } from './dto/activate-user.dto';
 import { UserService } from '../user/user.service';
+import { PatchUserServiceDto } from '../user/dto/patch-user.service.dto';
+import { UserState } from '../user/entity/user-state';
 
 interface AuthControllerMethodReturn {
   users?: User[];
@@ -63,14 +63,15 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @AllowWaitingActivation()
   async activate(
-    @Req() req: AuthenticatedRequest,
-    @Body() dto: ActivateUserDto
+    @Req() req: AuthenticatedRequest
   ): Promise<AuthControllerMethodReturn> {
     const {
       user: { id: userId },
     } = req;
 
-    const user = await this.userService.patchOne(userId, dto.toServiceDto());
+    const serviceDto = new PatchUserServiceDto({ state: UserState.Active });
+
+    const user = await this.userService.patchOne(userId, serviceDto);
 
     return { users: [user] };
   }
