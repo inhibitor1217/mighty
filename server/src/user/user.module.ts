@@ -10,5 +10,6 @@ import { UserService } from './user.service';
   imports: [TypeOrmModule.forFeature([Session, User, UserProfile])],
   providers: [UserService, rdbQueryRunnerProvider],
   exports: [UserService],
+  controllers: [],
 })
 export class UserModule {}

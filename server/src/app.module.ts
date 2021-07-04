@@ -3,9 +3,10 @@ import { AuthModule } from './auth/auth.module';
 import { RequestLoggerMiddleware } from './middleware/request-logger.middleware';
 import { RdbModule } from './rdb/rdb.module';
 import { RoomModule } from './room/room.module';
+import { ActiveUserModule } from './user/active-user.module';
 
 @Module({
-  imports: [AuthModule, RdbModule, RoomModule],
+  imports: [ActiveUserModule, AuthModule, RdbModule, RoomModule],
   controllers: [],
   providers: [],
 })
