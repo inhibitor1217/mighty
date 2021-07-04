@@ -2,12 +2,14 @@ import _ from "lodash";
 
 import type { UserProfile } from "type/graphql";
 
+import defaultFormPreset from "./default";
 import { FormPreset } from "./type";
 
 export interface UserProfileFormValues
   extends Pick<UserProfile, "displayName" | "email" | "photo"> {}
 
 const userProfile: FormPreset<UserProfileFormValues> = {
+  ...defaultFormPreset,
   validate(values) {
     const errors = {};
 
@@ -21,7 +23,6 @@ const userProfile: FormPreset<UserProfileFormValues> = {
 
     return errors;
   },
-  onSubmit: _.noop,
 };
 
 export default userProfile;
