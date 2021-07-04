@@ -1,3 +1,4 @@
 extend type Query {
   user(id: ID!): User
+  userProfile(id: ID!): UserProfile
 }
