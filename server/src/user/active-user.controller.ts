@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Param,
   ParseIntPipe,
   Patch,
@@ -35,6 +36,12 @@ export class ActiveUserController {
     @Param('userId', ParseIntPipe) userId: number,
     @Body() dto: PatchUserProfileDto
   ): Promise<ActiveUserControllerMethodReturn> {
+    if (req.user.id !== userId) {
+      throw new ForbiddenException(
+        'cannot update userProfile of requested user'
+      );
+    }
+
     const patchUserServiceDto: PatchUserServiceDto = {
       profile: dto.toServiceDto(),
     };
