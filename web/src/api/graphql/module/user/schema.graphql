@@ -1,0 +1,11 @@
+input UpdateUserProfileInput {
+  displayName: String!
+}
+
+type UpdateUserProfileResult {
+  users: [User!]!
+}
+
+extend type Mutation {
+  updateUserProfile(userId: ID!, input: UpdateUserProfileInput!): UpdateUserProfileResult!
+}
