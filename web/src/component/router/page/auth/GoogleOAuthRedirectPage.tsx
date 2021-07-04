@@ -2,7 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { Redirect, useLocation } from "react-router";
 import _ from "lodash";
 
-import { googleOAuthRedirect } from "api/auth/OAuth";
+import { googleOAuthRedirect } from "api/rest/auth/OAuth";
 import ContentSpinner from "component/common/ContentSpinner";
 import Error from "component/common/Error";
 import ScrollView from "component/layout/ScrollView";

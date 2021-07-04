@@ -13,7 +13,7 @@ import {
 import { Formik } from "formik";
 import type { FormikProps } from "formik";
 
-import { profile } from "api/user/profile";
+import { profile } from "api/rest/user/profile";
 import { Field, StringField } from "component/common/Form";
 import type { FieldProps } from "component/common/Form";
 import { AUTH_PATH, SIGN_IN_PATH } from "const/path";

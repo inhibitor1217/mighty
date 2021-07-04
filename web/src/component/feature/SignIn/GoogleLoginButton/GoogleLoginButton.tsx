@@ -1,4 +1,4 @@
-import { googleOAuthSignInFullPath } from "api/auth/OAuth";
+import { googleOAuthSignInFullPath } from "api/rest/auth/OAuth";
 
 import Styled from "./GoogleLoginButton.styled";
 import type GoogleLoginButtonProps from "./GoogleLoginButton.type";
